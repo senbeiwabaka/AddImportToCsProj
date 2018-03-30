@@ -285,7 +285,64 @@ namespace ViewAnalysis
             }
         }
 
+        private void ExportListToExcelToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                using (var stream = new FileStream(@"C:\Users\HB33713\Desktop\Export.xlsx", FileMode.Create, FileAccess.ReadWrite))
+                {
+                    using (var package = new ExcelPackage(stream))
+                    {
+                        using (var worksheet = package.Workbook.Worksheets.Add("First Sheet"))
+                        {
+                            // Header Columns
+                            worksheet.Cells[1, 1].Value = "Name";
+                            worksheet.Cells[1, 2].Value = "Rule";
+                            worksheet.Cells[1, 3].Value = "Resolution";
+                            worksheet.Cells[1, 4].Value = "Fix Category";
+                            
+                            var rowIndex = 2;
+
+                            // Row Columns
+                            foreach (var filteredObject in olvIssues.FilteredObjects)
+                            {
+                                var issueModel = filteredObject as IssueModel;
+
+                                worksheet.Cells[rowIndex, 1].Value = issueModel.Name;
+                                worksheet.Cells[rowIndex, 2].Value = issueModel.MessageModel.Rule.Name;
+                                worksheet.Cells[rowIndex, 3].Value = issueModel.Text;
+                                worksheet.Cells[rowIndex, 4].Value = Enum.Parse(typeof(FixCategories), issueModel.FixCategory);
+
+                                ++rowIndex;
+                            }
+
+                            //worksheet.Cells.AutoFitColumns();
+
+                            worksheet.View.FreezePanes(2, 4);
+
+                            worksheet.Cells[1, 1, rowIndex, 4].AutoFilter = true;
+                            //worksheet.Cells[1, 2, rowIndex, 2].AutoFilter = true;
+                            //worksheet.Cells[1, 3, rowIndex, 3].AutoFilter = true;
+                            //worksheet.Cells[1, 4, rowIndex, 4].AutoFilter = true;
+
+                            package.SaveAs(stream);
+                        }
+                    }
+                }
+
+                MessageBox.Show("Export Successful", "Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                tbInformation.AppendText($"ERROR: {ex.Message}");
+
+                MessageBox.Show(ex.Message, "Failed to export", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         #endregion Menu Events
+
+        #region Events
 
         private void Cmd_Exited(object sender, EventArgs e)
         {
@@ -315,6 +372,20 @@ namespace ViewAnalysis
                 SetControlState(false);
             }));
         }
+
+        private void TcAnalysisTabs_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (tcAnalysisTabs.SelectedTab.Name == "tpIssues")
+            {
+                exportListToExcelToolStripMenuItem.Enabled = true;
+            }
+            else
+            {
+                exportListToExcelToolStripMenuItem.Enabled = false;
+            }
+        }
+
+        #endregion
 
         #region Helper Methods
 
@@ -813,43 +884,8 @@ namespace ViewAnalysis
 
         #endregion Helper Methods
 
-        private void ExportListToExcelToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                using (var stream = new FileStream(@"C:\Users\HB33713\Desktop\Export.xlsx", FileMode.Create, FileAccess.Write))
-                {
-                    using (var package = new ExcelPackage(stream))
-                    {
-                        var worksheet = package.Workbook.Worksheets.Add("First Sheet");
-
-                        foreach(var filteredObject in olvIssues.FilteredObjects)
-                        {
-                            var issueModel = filteredObject as IssueModel;
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                tbInformation.AppendText($"ERROR: {ex.Message}");
-
-                MessageBox.Show(ex.Message, "Failed to export", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-
-            MessageBox.Show("Export Successful", "Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
         
-        private void TcAnalysisTabs_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (tcAnalysisTabs.SelectedTab.Name == "tpIssues")
-            {
-                exportListToExcelToolStripMenuItem.Enabled = true;
-            }
-            else
-            {
-                exportListToExcelToolStripMenuItem.Enabled = false;
-            }
-        }
+        
+        
     }
 }

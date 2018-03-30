@@ -139,7 +139,6 @@
             // tbInformation
             // 
             this.tbInformation.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.tbInformation.Enabled = false;
             this.tbInformation.Location = new System.Drawing.Point(0, 334);
             this.tbInformation.Multiline = true;
             this.tbInformation.Name = "tbInformation";
@@ -387,14 +386,14 @@
             // expandAllToolStripMenuItem
             // 
             this.expandAllToolStripMenuItem.Name = "expandAllToolStripMenuItem";
-            this.expandAllToolStripMenuItem.Size = new System.Drawing.Size(216, 26);
+            this.expandAllToolStripMenuItem.Size = new System.Drawing.Size(209, 26);
             this.expandAllToolStripMenuItem.Text = "Expand All";
             this.expandAllToolStripMenuItem.Click += new System.EventHandler(this.ExpandAllToolStripMenuItem_Click);
             // 
             // collapseAllToolStripMenuItem
             // 
             this.collapseAllToolStripMenuItem.Name = "collapseAllToolStripMenuItem";
-            this.collapseAllToolStripMenuItem.Size = new System.Drawing.Size(216, 26);
+            this.collapseAllToolStripMenuItem.Size = new System.Drawing.Size(209, 26);
             this.collapseAllToolStripMenuItem.Text = "Collapse All";
             this.collapseAllToolStripMenuItem.Click += new System.EventHandler(this.CollapseAllToolStripMenuItem_Click);
             // 
@@ -402,7 +401,7 @@
             // 
             this.exportListToExcelToolStripMenuItem.Enabled = false;
             this.exportListToExcelToolStripMenuItem.Name = "exportListToExcelToolStripMenuItem";
-            this.exportListToExcelToolStripMenuItem.Size = new System.Drawing.Size(216, 26);
+            this.exportListToExcelToolStripMenuItem.Size = new System.Drawing.Size(209, 26);
             this.exportListToExcelToolStripMenuItem.Text = "Export List to Excel";
             this.exportListToExcelToolStripMenuItem.Click += new System.EventHandler(this.ExportListToExcelToolStripMenuItem_Click);
             // 
