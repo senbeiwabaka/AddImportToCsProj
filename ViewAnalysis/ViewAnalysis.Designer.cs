@@ -1,4 +1,6 @@
-﻿namespace ViewAnalysis
+﻿using ViewAnalysis.Controls;
+
+namespace ViewAnalysis
 {
     partial class ViewAnalysis
     {
@@ -37,19 +39,16 @@
             this.olvcRule = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.tbInformation = new System.Windows.Forms.TextBox();
             this.tcAnalysisTabs = new System.Windows.Forms.TabControl();
-            this.tpNamespaces = new System.Windows.Forms.TabPage();
-            this.tpTargets = new System.Windows.Forms.TabPage();
-            this.tlvTargetsAnalysisTree = new BrightIdeasSoftware.TreeListView();
-            this.olvColumn1 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
-            this.olvColumn2 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
-            this.olvColumn3 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
-            this.olvColumn4 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.tpIssues = new System.Windows.Forms.TabPage();
             this.olvIssues = new BrightIdeasSoftware.ObjectListView();
             this.olvcIssueName = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.olvcIssueRule = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.olvcIssueText = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.olvcIssueFixCategory = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
+            this.olvcIssueCheckId = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
+            this.olvcIssueUrl = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
+            this.tpNamespaces = new System.Windows.Forms.TabPage();
+            this.tpTargets = new System.Windows.Forms.TabPage();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.selectFolderLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -61,13 +60,13 @@
             this.expandAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.collapseAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exportListToExcelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.tvAnalysis = new TargetsView();
             ((System.ComponentModel.ISupportInitialize)(this.tlvNamespaceAnalysisTree)).BeginInit();
             this.tcAnalysisTabs.SuspendLayout();
-            this.tpNamespaces.SuspendLayout();
-            this.tpTargets.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.tlvTargetsAnalysisTree)).BeginInit();
             this.tpIssues.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.olvIssues)).BeginInit();
+            this.tpNamespaces.SuspendLayout();
+            this.tpTargets.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -152,90 +151,15 @@
             this.tcAnalysisTabs.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.tcAnalysisTabs.Controls.Add(this.tpIssues);
             this.tcAnalysisTabs.Controls.Add(this.tpNamespaces);
             this.tcAnalysisTabs.Controls.Add(this.tpTargets);
-            this.tcAnalysisTabs.Controls.Add(this.tpIssues);
             this.tcAnalysisTabs.Location = new System.Drawing.Point(0, 28);
             this.tcAnalysisTabs.Name = "tcAnalysisTabs";
             this.tcAnalysisTabs.SelectedIndex = 0;
             this.tcAnalysisTabs.Size = new System.Drawing.Size(800, 300);
             this.tcAnalysisTabs.TabIndex = 2;
             this.tcAnalysisTabs.SelectedIndexChanged += new System.EventHandler(this.TcAnalysisTabs_SelectedIndexChanged);
-            // 
-            // tpNamespaces
-            // 
-            this.tpNamespaces.Controls.Add(this.tlvNamespaceAnalysisTree);
-            this.tpNamespaces.Location = new System.Drawing.Point(4, 25);
-            this.tpNamespaces.Name = "tpNamespaces";
-            this.tpNamespaces.Padding = new System.Windows.Forms.Padding(3);
-            this.tpNamespaces.Size = new System.Drawing.Size(792, 271);
-            this.tpNamespaces.TabIndex = 0;
-            this.tpNamespaces.Text = "Namespaces";
-            this.tpNamespaces.UseVisualStyleBackColor = true;
-            // 
-            // tpTargets
-            // 
-            this.tpTargets.Controls.Add(this.tlvTargetsAnalysisTree);
-            this.tpTargets.Location = new System.Drawing.Point(4, 25);
-            this.tpTargets.Name = "tpTargets";
-            this.tpTargets.Padding = new System.Windows.Forms.Padding(3);
-            this.tpTargets.Size = new System.Drawing.Size(792, 271);
-            this.tpTargets.TabIndex = 1;
-            this.tpTargets.Text = "Targets";
-            this.tpTargets.UseVisualStyleBackColor = true;
-            // 
-            // tlvTargetsAnalysisTree
-            // 
-            this.tlvTargetsAnalysisTree.AllColumns.Add(this.olvColumn1);
-            this.tlvTargetsAnalysisTree.AllColumns.Add(this.olvColumn2);
-            this.tlvTargetsAnalysisTree.AllColumns.Add(this.olvColumn3);
-            this.tlvTargetsAnalysisTree.AllColumns.Add(this.olvColumn4);
-            this.tlvTargetsAnalysisTree.CellEditUseWholeCell = false;
-            this.tlvTargetsAnalysisTree.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.olvColumn1,
-            this.olvColumn2,
-            this.olvColumn3,
-            this.olvColumn4});
-            this.tlvTargetsAnalysisTree.Cursor = System.Windows.Forms.Cursors.Default;
-            this.tlvTargetsAnalysisTree.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tlvTargetsAnalysisTree.Location = new System.Drawing.Point(3, 3);
-            this.tlvTargetsAnalysisTree.Name = "tlvTargetsAnalysisTree";
-            this.tlvTargetsAnalysisTree.ShowGroups = false;
-            this.tlvTargetsAnalysisTree.Size = new System.Drawing.Size(786, 265);
-            this.tlvTargetsAnalysisTree.TabIndex = 1;
-            this.tlvTargetsAnalysisTree.UseCompatibleStateImageBehavior = false;
-            this.tlvTargetsAnalysisTree.View = System.Windows.Forms.View.Details;
-            this.tlvTargetsAnalysisTree.VirtualMode = true;
-            this.tlvTargetsAnalysisTree.CellRightClick += new System.EventHandler<BrightIdeasSoftware.CellRightClickEventArgs>(this.TlvTargetsAnalysisTree_CellRightClick);
-            // 
-            // olvColumn1
-            // 
-            this.olvColumn1.AspectName = "Name";
-            this.olvColumn1.FillsFreeSpace = true;
-            this.olvColumn1.Groupable = false;
-            this.olvColumn1.IsEditable = false;
-            this.olvColumn1.Text = "Name";
-            // 
-            // olvColumn2
-            // 
-            this.olvColumn2.AspectName = "Certainty";
-            this.olvColumn2.Groupable = false;
-            this.olvColumn2.IsEditable = false;
-            this.olvColumn2.Text = "Certainty";
-            // 
-            // olvColumn3
-            // 
-            this.olvColumn3.AspectName = "Status";
-            this.olvColumn3.Groupable = false;
-            this.olvColumn3.IsEditable = false;
-            this.olvColumn3.Text = "Status";
-            // 
-            // olvColumn4
-            // 
-            this.olvColumn4.AspectName = "Level";
-            this.olvColumn4.Groupable = false;
-            this.olvColumn4.IsEditable = false;
-            this.olvColumn4.Text = "Level";
             // 
             // tpIssues
             // 
@@ -254,13 +178,17 @@
             this.olvIssues.AllColumns.Add(this.olvcIssueRule);
             this.olvIssues.AllColumns.Add(this.olvcIssueText);
             this.olvIssues.AllColumns.Add(this.olvcIssueFixCategory);
+            this.olvIssues.AllColumns.Add(this.olvcIssueCheckId);
+            this.olvIssues.AllColumns.Add(this.olvcIssueUrl);
             this.olvIssues.CausesValidation = false;
             this.olvIssues.CellEditUseWholeCell = false;
             this.olvIssues.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.olvcIssueName,
             this.olvcIssueRule,
             this.olvcIssueText,
-            this.olvcIssueFixCategory});
+            this.olvcIssueFixCategory,
+            this.olvcIssueCheckId,
+            this.olvcIssueUrl});
             this.olvIssues.Cursor = System.Windows.Forms.Cursors.Default;
             this.olvIssues.Dock = System.Windows.Forms.DockStyle.Fill;
             this.olvIssues.EmptyListMsg = "No issues found";
@@ -311,6 +239,48 @@
             this.olvcIssueFixCategory.AspectName = "FixCategory";
             this.olvcIssueFixCategory.Searchable = false;
             this.olvcIssueFixCategory.Text = "Fix Category";
+            // 
+            // olvcIssueCheckId
+            // 
+            this.olvcIssueCheckId.AspectName = "issueModel.MessageModel.CheckId";
+            this.olvcIssueCheckId.HeaderCheckBoxUpdatesRowCheckBoxes = false;
+            this.olvcIssueCheckId.IsEditable = false;
+            this.olvcIssueCheckId.Searchable = false;
+            this.olvcIssueCheckId.Text = "Check Id";
+            // 
+            // olvcIssueUrl
+            // 
+            this.olvcIssueUrl.AspectName = "issueModel.MessageModel.Rule.Url";
+            this.olvcIssueUrl.Groupable = false;
+            this.olvcIssueUrl.HeaderCheckBoxUpdatesRowCheckBoxes = false;
+            this.olvcIssueUrl.Hyperlink = true;
+            this.olvcIssueUrl.IsEditable = false;
+            this.olvcIssueUrl.Searchable = false;
+            this.olvcIssueUrl.Sortable = false;
+            this.olvcIssueUrl.Text = "URL";
+            this.olvcIssueUrl.UseFiltering = false;
+            // 
+            // tpNamespaces
+            // 
+            this.tpNamespaces.Controls.Add(this.tlvNamespaceAnalysisTree);
+            this.tpNamespaces.Location = new System.Drawing.Point(4, 25);
+            this.tpNamespaces.Name = "tpNamespaces";
+            this.tpNamespaces.Padding = new System.Windows.Forms.Padding(3);
+            this.tpNamespaces.Size = new System.Drawing.Size(792, 271);
+            this.tpNamespaces.TabIndex = 0;
+            this.tpNamespaces.Text = "Namespaces";
+            this.tpNamespaces.UseVisualStyleBackColor = true;
+            // 
+            // tpTargets
+            // 
+            this.tpTargets.Controls.Add(this.tvAnalysis);
+            this.tpTargets.Location = new System.Drawing.Point(4, 25);
+            this.tpTargets.Name = "tpTargets";
+            this.tpTargets.Padding = new System.Windows.Forms.Padding(3);
+            this.tpTargets.Size = new System.Drawing.Size(792, 271);
+            this.tpTargets.TabIndex = 1;
+            this.tpTargets.Text = "Targets";
+            this.tpTargets.UseVisualStyleBackColor = true;
             // 
             // menuStrip1
             // 
@@ -405,6 +375,14 @@
             this.exportListToExcelToolStripMenuItem.Text = "Export List to Excel";
             this.exportListToExcelToolStripMenuItem.Click += new System.EventHandler(this.ExportListToExcelToolStripMenuItem_Click);
             // 
+            // tvAnalysis
+            // 
+            this.tvAnalysis.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tvAnalysis.Location = new System.Drawing.Point(3, 3);
+            this.tvAnalysis.Name = "tvAnalysis";
+            this.tvAnalysis.Size = new System.Drawing.Size(786, 265);
+            this.tvAnalysis.TabIndex = 0;
+            // 
             // ViewAnalysis
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -415,14 +393,15 @@
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "ViewAnalysis";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "View Analysis";
+            this.Load += new System.EventHandler(this.ViewAnalysis_Load);
             ((System.ComponentModel.ISupportInitialize)(this.tlvNamespaceAnalysisTree)).EndInit();
             this.tcAnalysisTabs.ResumeLayout(false);
-            this.tpNamespaces.ResumeLayout(false);
-            this.tpTargets.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.tlvTargetsAnalysisTree)).EndInit();
             this.tpIssues.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.olvIssues)).EndInit();
+            this.tpNamespaces.ResumeLayout(false);
+            this.tpTargets.ResumeLayout(false);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
@@ -446,11 +425,6 @@
         private System.Windows.Forms.ToolStripMenuItem selectFolderLocationToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem generateAnalysisToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem loadAnalysisResultsToolStripMenuItem;
-        private BrightIdeasSoftware.TreeListView tlvTargetsAnalysisTree;
-        private BrightIdeasSoftware.OLVColumn olvColumn1;
-        private BrightIdeasSoftware.OLVColumn olvColumn2;
-        private BrightIdeasSoftware.OLVColumn olvColumn3;
-        private BrightIdeasSoftware.OLVColumn olvColumn4;
         private System.Windows.Forms.ToolStripMenuItem totalsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem warningToolStripMenuItem;
         private BrightIdeasSoftware.OLVColumn olvcRule;
@@ -464,6 +438,9 @@
         private BrightIdeasSoftware.OLVColumn olvcIssueText;
         private BrightIdeasSoftware.OLVColumn olvcIssueFixCategory;
         private System.Windows.Forms.ToolStripMenuItem exportListToExcelToolStripMenuItem;
+        private BrightIdeasSoftware.OLVColumn olvcIssueCheckId;
+        private BrightIdeasSoftware.OLVColumn olvcIssueUrl;
+        private TargetsView tvAnalysis;
     }
 }
 

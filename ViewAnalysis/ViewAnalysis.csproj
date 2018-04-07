@@ -54,6 +54,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controls\TargetsView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\TargetsView.Designer.cs">
+      <DependentUpon>TargetsView.cs</DependentUpon>
+    </Compile>
     <Compile Include="Enums\Accessibilities.cs" />
     <Compile Include="Enums\FixCategories.cs" />
     <Compile Include="Enums\Kinds.cs" />
@@ -66,6 +72,7 @@
       <DependentUpon>ViewAllDataForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\BaseModel.cs" />
+    <Compile Include="Models\ExportResult.cs" />
     <Compile Include="Models\IssueModel.cs" />
     <Compile Include="Models\Targets\AccessorModel.cs" />
     <Compile Include="Models\Targets\MemberModel.cs" />
@@ -77,6 +84,12 @@
     <Compile Include="Models\Rules\RuleModel.cs" />
     <Compile Include="Models\Targets\TargetModel.cs" />
     <Compile Include="Models\Targets\TypeModel.cs" />
+    <Compile Include="Utilities\ExportHelper.cs" />
+    <Compile Include="Utilities\IssueModelHelper.cs" />
+    <Compile Include="Utilities\MessageModelHelper.cs" />
+    <Compile Include="Utilities\NamespaceHelper.cs" />
+    <Compile Include="Utilities\TargetHelper.cs" />
+    <Compile Include="Utilities\XmlNodeHelper.cs" />
     <Compile Include="ViewAnalysis.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -85,6 +98,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Controls\TargetsView.resx">
+      <DependentUpon>TargetsView.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="HelperForms\ViewAllDataForm.resx">
       <DependentUpon>ViewAllDataForm.cs</DependentUpon>
     </EmbeddedResource>

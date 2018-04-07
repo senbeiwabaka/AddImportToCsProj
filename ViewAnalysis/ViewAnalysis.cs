@@ -1,17 +1,17 @@
 ﻿using Microsoft.Win32;
-using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using System.Xml;
-using ViewAnalysis.Enums;
 using ViewAnalysis.HelperForms;
 using ViewAnalysis.Models;
 using ViewAnalysis.Models.Rules;
 using ViewAnalysis.Models.Targets;
+using ViewAnalysis.Utilities;
 
 namespace ViewAnalysis
 {
@@ -49,7 +49,7 @@ namespace ViewAnalysis
             {
                 ViewAllDataForm form = new ViewAllDataForm(olvIssues.SelectedObject as BaseModel);
 
-                form.Show();
+                form.Show(this);
             }
         }
 
@@ -82,6 +82,7 @@ namespace ViewAnalysis
 
         #region Menu Events
 
+        // TODO: Convert to helper form that can specify special folder structure
         private void SelectFolderLocationToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var folderDialog = new FolderBrowserDialog()
@@ -98,6 +99,7 @@ namespace ViewAnalysis
                     .Select(x => x.ToLowerInvariant())
                     .Where(x => x.Contains("builds"))
                     .ToList();
+
                 if (!string.IsNullOrWhiteSpace(folderDialog.SelectedPath) && solutionFiles.Any())
                 {
                     generateAnalysisToolStripMenuItem.Enabled = true;
@@ -115,51 +117,48 @@ namespace ViewAnalysis
 
         private void LoadAnalysisResultsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            SetControlState(true);
+            var startTime = DateTime.Now;
 
-            var xmlDocuments = new List<XmlDocument>();
+            SetControlState(true);
 
             try
             {
                 // Get all of the analysis xml files from the selected folder path
-                var files = Directory.EnumerateFiles(folderLocation, "code-analysis.xml", SearchOption.AllDirectories);
+                var files = Directory.EnumerateFiles(folderLocation, "code-analysis.xml", SearchOption.AllDirectories).ToList();
 
                 // Turn all of them into xml documents
                 foreach (var file in files)
                 {
-                    Console.WriteLine($"File: {file}");
+                    tbInformation.AppendText($"File: {file} {Environment.NewLine}");
+
                     var xmlDocument = new XmlDocument();
                     xmlDocument.Load(file);
 
-                    xmlDocuments.Add(xmlDocument);
-                }
-
-                // Go through each one of the documents and load them into models
-                foreach (var xmlDocument in xmlDocuments)
-                {
                     GenerateNamespaceTreeList(xmlDocument);
-                    GenerateTargetTreeList(xmlDocument);
+                    TargetHelper.GenerateTargetTreeList(xmlDocument, TargetModelList, ref count);
                     GenerateRuleTreeList(xmlDocument);
                 }
 
-                Console.WriteLine($"List size: {xmlDocuments.Count}");
+                tbInformation.AppendText($"List size: {files.Count} {Environment.NewLine}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
                 tbInformation.AppendText($"ERROR: {ex} {Environment.NewLine}");
             }
-
-            xmlDocuments.Clear();
-            xmlDocuments = null;
 
             GetDistinctListofRules();
             SetIssueMssagesRule();
             LoadNamespacesResultsToTreeView();
-            LoadTargetsResultsToTreeView();
+            
             LoadIssuesResultsToTreeView();
 
+            tvAnalysis.SetTreeUp(TargetModelList);
+
             SetControlState(false);
+
+            var endTime = DateTime.Now;
+
+            tbInformation.AppendText($"Time taken to execute: {endTime - startTime} {Environment.NewLine}");
         }
 
         private void GenerateAnalysisToolStripMenuItem_Click(object sender, EventArgs e)
@@ -238,10 +237,8 @@ namespace ViewAnalysis
 
         private void WarningToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var sumOfWarnings = NamespaceModelList.Sum(x => x.Messages.Count + x.Types.Count);
-            sumOfWarnings += TargetModelList.Sum(x => x.Modules?.Sum(y => y.Messages.Count + y.Namespaces.Sum(z => z.Messages.Count + z.Types.Count))).Value;
             MessageBox.Show(
-                $"The total number of warnings is {sumOfWarnings + RuleModelList.Count} or {count}",
+                $"The total number of warnings is {IssueModelList.Count} or {count}",
                 "Total Number of Warnings",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
@@ -255,7 +252,7 @@ namespace ViewAnalysis
             }
             else if (tcAnalysisTabs.SelectedTab.Name == "tpTargets")
             {
-                tlvTargetsAnalysisTree.ExpandAll();
+                tvAnalysis.Expand();
             }
             else
             {
@@ -274,7 +271,7 @@ namespace ViewAnalysis
             }
             else if (tcAnalysisTabs.SelectedTab.Name == "tpTargets")
             {
-                tlvTargetsAnalysisTree.CollapseAll();
+                tvAnalysis.Collapse();
             }
             else
             {
@@ -287,56 +284,42 @@ namespace ViewAnalysis
 
         private void ExportListToExcelToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            try
+            var saveDialog = new SaveFileDialog
             {
-                using (var stream = new FileStream(@"C:\Users\HB33713\Desktop\Export.xlsx", FileMode.Create, FileAccess.ReadWrite))
-                {
-                    using (var package = new ExcelPackage(stream))
-                    {
-                        using (var worksheet = package.Workbook.Worksheets.Add("First Sheet"))
-                        {
-                            // Header Columns
-                            worksheet.Cells[1, 1].Value = "Name";
-                            worksheet.Cells[1, 2].Value = "Rule";
-                            worksheet.Cells[1, 3].Value = "Resolution";
-                            worksheet.Cells[1, 4].Value = "Fix Category";
-                            
-                            var rowIndex = 2;
+                CreatePrompt = true,
+                CheckPathExists = true,
+                OverwritePrompt = true,
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.CommonDesktopDirectory),
+                SupportMultiDottedExtensions = false,
+                ValidateNames = true
+            };
+            var dialogResult = saveDialog.ShowDialog(this);
 
-                            // Row Columns
-                            foreach (var filteredObject in olvIssues.FilteredObjects)
-                            {
-                                var issueModel = filteredObject as IssueModel;
+            if (dialogResult != DialogResult.OK)
+            {
+                MessageBox.Show("Must set/select save file", "No file selected", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                                worksheet.Cells[rowIndex, 1].Value = issueModel.Name;
-                                worksheet.Cells[rowIndex, 2].Value = issueModel.MessageModel.Rule.Name;
-                                worksheet.Cells[rowIndex, 3].Value = issueModel.Text;
-                                worksheet.Cells[rowIndex, 4].Value = Enum.Parse(typeof(FixCategories), issueModel.FixCategory);
+                return;
+            }
 
-                                ++rowIndex;
-                            }
+            if (string.IsNullOrWhiteSpace(saveDialog.FileName))
+            {
+                MessageBox.Show("Must set/select save file", "No file selected", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                            //worksheet.Cells.AutoFitColumns();
+                return;
+            }
 
-                            worksheet.View.FreezePanes(2, 4);
+            var result = ExportHelper.Export(saveDialog.FileName, new ReadOnlyCollection<object>(olvIssues.FilteredObjects.Cast<object>().ToList()));
 
-                            worksheet.Cells[1, 1, rowIndex, 4].AutoFilter = true;
-                            //worksheet.Cells[1, 2, rowIndex, 2].AutoFilter = true;
-                            //worksheet.Cells[1, 3, rowIndex, 3].AutoFilter = true;
-                            //worksheet.Cells[1, 4, rowIndex, 4].AutoFilter = true;
-
-                            package.SaveAs(stream);
-                        }
-                    }
-                }
-
+            if (result.Successful)
+            {
                 MessageBox.Show("Export Successful", "Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-            catch (Exception ex)
+            else
             {
-                tbInformation.AppendText($"ERROR: {ex.Message}");
+                tbInformation.AppendText($"ERROR: {result.Exception.Message}");
 
-                MessageBox.Show(ex.Message, "Failed to export", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(result.Exception.Message, "Failed to export", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -385,7 +368,12 @@ namespace ViewAnalysis
             }
         }
 
-        #endregion
+        private void ViewAnalysis_Load(object sender, EventArgs e)
+        {
+            exportListToExcelToolStripMenuItem.Enabled = tcAnalysisTabs.SelectedTab.Name == "tpIssues";
+        }
+
+        #endregion Events
 
         #region Helper Methods
 
@@ -396,47 +384,11 @@ namespace ViewAnalysis
         private void GenerateNamespaceTreeList(XmlDocument xmlDocument)
         {
             var namespaces = xmlDocument.GetElementsByTagName("Namespace");
-
-            var list = SetupNamespaceList(namespaces).ToList();
+            var list = NamespaceHelper.SetupNamespaceList(namespaces, ref count).ToList();
 
             list.ForEach(x => x.XmlFile = xmlDocument.BaseURI);
 
             NamespaceModelList.AddRange(list);
-        }
-
-        /// <summary>
-        /// Generates the list of "TargetModels" for the tree view "Target" for the specified document
-        /// </summary>
-        /// <param name="xmlDocument">The xml document that has the list of data</param>
-        private void GenerateTargetTreeList(XmlDocument xmlDocument)
-        {
-            var targets = xmlDocument.GetElementsByTagName("Target");
-
-            foreach (XmlNode target in targets)
-            {
-                var targetModel = new TargetModel
-                {
-                    Name = GetNodeAttributeValue(target, "Name"),
-                    XmlFile = xmlDocument.BaseURI
-                };
-
-                foreach (XmlNode module in target.SelectNodes("Modules/Module"))
-                {
-                    var moduleModel = new ModuleModel(targetModel)
-                    {
-                        Name = GetNodeAttributeValue(module, "Name")
-                    };
-
-                    // Get the list of messages
-                    moduleModel.Messages.AddRange(BuildListOfMessages(module, moduleModel));
-
-                    moduleModel.Namespaces.AddRange(SetupNamespaceList(module.SelectNodes("Namespaces/Namespace"), moduleModel));
-
-                    targetModel.Modules.Add(moduleModel);
-                }
-
-                TargetModelList.Add(targetModel);
-            }
         }
 
         /// <summary>
@@ -451,21 +403,21 @@ namespace ViewAnalysis
             {
                 var ruleModel = new RuleModel
                 {
-                    TypeName = GetNodeAttributeValue(rule, "TypeName"),
-                    Category = GetNodeAttributeValue(rule, "Category"),
-                    CheckId = GetNodeAttributeValue(rule, "CheckId"),
+                    TypeName = XmlNodeHelper.GetNodeAttributeValue(rule, "TypeName"),
+                    Category = XmlNodeHelper.GetNodeAttributeValue(rule, "Category"),
+                    CheckId = XmlNodeHelper.GetNodeAttributeValue(rule, "CheckId"),
                     Name = rule["Name"]?.InnerText,
                     Description = rule["Description"]?.InnerText,
                     Resolution = new ResolutionModel
                     {
-                        Name = GetNodeAttributeValue(rule["Resolution"], "Name"),
+                        Name = XmlNodeHelper.GetNodeAttributeValue(rule["Resolution"], "Name"),
                         Text = rule["Resolution"]?.InnerText
                     },
                     Owner = rule["Owner"]?.InnerText,
                     Url = rule["Url"]?.InnerText,
                     MessageLevel = new MessageLevelModel
                     {
-                        Certainty = Convert.ToInt32(GetNodeAttributeValue(rule["MessageLevel"], "Certainty") ?? "0"),
+                        Certainty = Convert.ToInt32(XmlNodeHelper.GetNodeAttributeValue(rule["MessageLevel"], "Certainty") ?? "0"),
                         Text = rule["MessageLevel"]?.InnerText
                     },
                     XmlFile = xmlDocument.BaseURI
@@ -473,100 +425,6 @@ namespace ViewAnalysis
 
                 RuleModelList.Add(ruleModel);
             }
-        }
-
-        private IReadOnlyCollection<NamespaceModel> SetupNamespaceList(XmlNodeList namespaces, ModuleModel moduleModel = null)
-        {
-            var namespaceModels = new List<NamespaceModel>(namespaces.Count);
-
-            foreach (XmlNode @namespace in namespaces)
-            {
-                var namespaceModel = new NamespaceModel(moduleModel)
-                {
-                    Name = GetNodeAttributeValue(@namespace, "Name")
-                };
-
-                // Get the list of messages
-                namespaceModel.Messages.AddRange(BuildListOfMessages(@namespace, namespaceModel));
-
-                foreach (XmlNode type in @namespace.SelectNodes("Types/Type"))
-                {
-                    var typeModel = new TypeModel(namespaceModel)
-                    {
-                        Name = GetNodeAttributeValue(type, "Name"),
-                        Kind = (Kinds)Enum.Parse(typeof(Kinds), GetNodeAttributeValue(type, "Kind")),
-                        Accessibility = (Accessibilities)Enum.Parse(typeof(Accessibilities), GetNodeAttributeValue(type, "Accessibility")),
-                        ExternallyVisible = Convert.ToBoolean(GetNodeAttributeValue(type, "ExternallyVisible"))
-                    };
-
-                    // Get the list of messages
-                    typeModel.Messages.AddRange(BuildListOfMessages(type, typeModel));
-
-                    foreach (XmlNode member in type.SelectNodes("Members/Member"))
-                    {
-                        var memberModel = new MemberModel(typeModel)
-                        {
-                            Name = GetNodeAttributeValue(member, "Name"),
-                            Kind = (Kinds)Enum.Parse(typeof(Kinds), GetNodeAttributeValue(member, "Kind")),
-                            Accessibility = (Accessibilities)Enum.Parse(typeof(Accessibilities), GetNodeAttributeValue(member, "Accessibility")),
-                            ExternallyVisible = Convert.ToBoolean(GetNodeAttributeValue(member, "ExternallyVisible")),
-                            Static = Convert.ToBoolean(GetNodeAttributeValue(member, "Static"))
-                        };
-
-                        // Get the list of messages
-                        memberModel.Messages.AddRange(BuildListOfMessages(member, memberModel));
-
-                        foreach (XmlNode accessor in member.SelectNodes("Accessors/Accessor"))
-                        {
-                            var accessorModel = new AccessorModel(memberModel)
-                            {
-                                Name = GetNodeAttributeValue(member, "Name"),
-                                Kind = (Kinds)Enum.Parse(typeof(Kinds), GetNodeAttributeValue(member, "Kind")),
-                                Accessibility = (Accessibilities)Enum.Parse(typeof(Accessibilities), GetNodeAttributeValue(member, "Accessibility")),
-                                ExternallyVisible = Convert.ToBoolean(GetNodeAttributeValue(member, "ExternallyVisible")),
-                                Static = Convert.ToBoolean(GetNodeAttributeValue(member, "Static"))
-                            };
-
-                            // Get the list of messages
-                            accessorModel.Messages.AddRange(BuildListOfMessages(accessor, accessorModel));
-
-                            memberModel.Accessors.Add(accessorModel);
-                        }
-
-                        typeModel.Members.Add(memberModel);
-                    }
-
-                    namespaceModel.Types.Add(typeModel);
-                }
-
-                namespaceModels.Add(namespaceModel);
-            }
-
-            return namespaceModels;
-        }
-
-        /// <summary>
-        /// Build the list of messages from the specified node
-        /// </summary>
-        /// <param name="node">The node that has the list of messages</param>
-        /// <param name="model">The model the messages are associated with</param>
-        /// <returns></returns>
-        private IReadOnlyCollection<MessageModel> BuildListOfMessages(XmlNode node, BaseModel model)
-        {
-            var messageModelList = new List<MessageModel>();
-
-            foreach (XmlNode message in node.SelectNodes("Messages/Message"))
-            {
-                ++count;
-
-                var messageModel = new MessageModel(model);
-
-                BuildMessageModel(messageModel, message);
-
-                messageModelList.Add(messageModel);
-            }
-
-            return messageModelList;
         }
 
         /// <summary>
@@ -611,75 +469,7 @@ namespace ViewAnalysis
                 return null;
             };
         }
-
-        /// <summary>
-        /// Take the loaded list of target issues and populate/setup the tree
-        /// </summary>
-        private void LoadTargetsResultsToTreeView()
-        {
-            tlvTargetsAnalysisTree.SetObjects(TargetModelList);
-
-            tlvTargetsAnalysisTree.CanExpandGetter = delegate (object x)
-            {
-                if (x is TargetModel)
-                {
-                    return (x as TargetModel).Modules.Any();
-                }
-
-                if (x is ModuleModel)
-                {
-                    return (x as ModuleModel).Messages.Any();
-                }
-
-                if (x is MessageModel)
-                {
-                    return (x as MessageModel).Issue != null;
-                }
-
-                if (x is ModuleModel)
-                {
-                    return (x as ModuleModel).Namespaces.Any();
-                }
-
-                if (x is NamespaceModel)
-                {
-                    return (x as NamespaceModel).Types.Any();
-                }
-
-                return false;
-            };
-
-            tlvTargetsAnalysisTree.ChildrenGetter = delegate (object x)
-            {
-                if (x is TargetModel)
-                {
-                    return (x as TargetModel).Modules;
-                }
-
-                if (x is ModuleModel)
-                {
-                    return (x as ModuleModel).Messages;
-                }
-
-                if (x is MessageModel)
-                {
-                    var list = new List<IssueModel>(1)
-                    {
-                        (x as MessageModel).Issue
-                    };
-
-                    return list;
-                }
-
-                if (x is ModuleModel)
-                {
-                    return (x as ModuleModel).Namespaces;
-                }
-
-                return null;
-            };
-        }
-
+        
         private void LoadIssuesResultsToTreeView()
         {
             var issueList = new List<IssueModel>();
@@ -853,39 +643,6 @@ namespace ViewAnalysis
             return msbuildPath;
         }
 
-        private static string GetNodeAttributeValue(XmlNode node, string attributeName)
-        {
-            return node.Attributes[attributeName]?.Value;
-        }
-
-        private static void BuildMessageModel(MessageModel messageModel, XmlNode node)
-        {
-            messageModel.Id = GetNodeAttributeValue(node, "Id");
-            messageModel.Category = GetNodeAttributeValue(node, "Category");
-            messageModel.CheckId = GetNodeAttributeValue(node, "CheckId");
-            messageModel.TypeName = GetNodeAttributeValue(node, "TypeName");
-            messageModel.FixCategory = (FixCategories)Enum.Parse(typeof(FixCategories), GetNodeAttributeValue(node, "FixCategory"));
-            messageModel.Status = (Statuses)Enum.Parse(typeof(Statuses), GetNodeAttributeValue(node, "Status"));
-
-            var issue = node.FirstChild;
-            var issueModel = new IssueModel(messageModel)
-            {
-                Certainty = Convert.ToInt32(GetNodeAttributeValue(issue, "Certainty")),
-                Level = (Levels)Enum.Parse(typeof(Levels), GetNodeAttributeValue(issue, "Level") ?? "None"),
-                Name = GetNodeAttributeValue(issue, "Name") ?? "No Issue Name",
-                Path = GetNodeAttributeValue(issue, "Path"),
-                File = GetNodeAttributeValue(issue, "File"),
-                Line = Convert.ToInt32(GetNodeAttributeValue(issue, "Line") ?? "0"),
-                Text = issue?.InnerText
-            };
-
-            messageModel.Issue = issueModel;
-        }
-
         #endregion Helper Methods
-
-        
-        
-        
     }
 }
