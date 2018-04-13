@@ -3,10 +3,20 @@ using System.Xml;
 using ViewAnalysis.Enums;
 using ViewAnalysis.Models;
 
+// TODO: FINISH
 namespace ViewAnalysis.Utilities
 {
+    /// <summary>
+    /// 
+    /// </summary>
     internal static class IssueModelHelper
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="messageModel"></param>
+        /// <param name="issue"></param>
+        /// <returns></returns>
         internal static IssueModel BuildIssueModel(MessageModel messageModel, XmlNode issue)
         {
             var issueModel = new IssueModel(messageModel)

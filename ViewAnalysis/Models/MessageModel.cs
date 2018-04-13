@@ -1,6 +1,5 @@
 ﻿using ViewAnalysis.Enums;
 using ViewAnalysis.Models.Rules;
-using ViewAnalysis.Models.Targets;
 
 namespace ViewAnalysis.Models
 {
@@ -9,14 +8,10 @@ namespace ViewAnalysis.Models
         public MessageModel()
         {
         }
-        
-        public MessageModel(BaseModel baseModel)
+
+        public MessageModel(BaseModel model)
         {
-            NamespaceModel = baseModel as NamespaceModel;
-            ModuleModel = baseModel as ModuleModel;
-            MemberModel = baseModel as MemberModel;
-            TypeModel = baseModel as TypeModel;
-            AccessorModel = baseModel as AccessorModel;
+            Model = model;
         }
 
         public string Category { get; set; }
@@ -35,27 +30,14 @@ namespace ViewAnalysis.Models
 
         public RuleModel Rule { get; set; }
 
-        public MemberModel MemberModel { get; }
+        public BaseModel Model { get; }
 
-        public ModuleModel ModuleModel { get; }
-        
-        public TypeModel TypeModel { get; }
-        
-        public NamespaceModel NamespaceModel { get; }
+        public override string Name => ToString();
 
-        public AccessorModel AccessorModel { get; }
-
-        public override string Name
-        {
-            get
-            {
-                return ToString();
-            }
-        }
-        
+        /// <inheritdoc />
         public override string ToString()
         {
-            return Issue == null ? $"{nameof(MessageModel)}" : !string.IsNullOrWhiteSpace(Issue.Name) ? $"Issue Name: {Issue.Name}" : $"{nameof(MessageModel)}";
+            return base.ToString();
         }
     }
 }

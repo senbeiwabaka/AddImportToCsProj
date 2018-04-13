@@ -40,13 +40,15 @@ namespace ViewAnalysis.Utilities
                                 worksheet.Cells[rowIndex, 1].Value = issueModel.Name;
                                 worksheet.Cells[rowIndex, 2].Value = issueModel.MessageModel.Rule.Name;
                                 worksheet.Cells[rowIndex, 3].Value = issueModel.Text;
-                                worksheet.Cells[rowIndex, 4].Value = Enum.Parse(typeof(FixCategories), issueModel.FixCategory);
+                                worksheet.Cells[rowIndex, 4].Value =
+                                    Enum.Parse(typeof(FixCategories), issueModel.FixCategory);
                                 worksheet.Cells[rowIndex, 5].Value = issueModel.MessageModel.CheckId;
                                 worksheet.Cells[rowIndex, 6].Value = issueModel.MessageModel.Rule.Url;
 
                                 if (!string.IsNullOrWhiteSpace(issueModel.File))
                                 {
-                                    worksheet.Cells[rowIndex, 7].Value = $"file:///{(issueModel.Path + @"\" + issueModel.File).Replace("\\", "/").Replace(' ', (char)160)}";
+                                    worksheet.Cells[rowIndex, 7].Value =
+                                        $"file:///{(issueModel.Path + @"\" + issueModel.File).Replace("\\", "/").Replace(' ', (char) 160)}";
                                 }
 
                                 ++rowIndex;
@@ -66,6 +68,11 @@ namespace ViewAnalysis.Utilities
                 }
 
                 exportResult.Successful = true;
+            }
+            catch (ObjectDisposedException ex)
+            {
+                exportResult.Exception = ex;
+                exportResult.Successful = false;
             }
             catch (Exception ex)
             {

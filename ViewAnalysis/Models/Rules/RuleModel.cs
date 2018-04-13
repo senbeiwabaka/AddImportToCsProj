@@ -5,6 +5,16 @@ namespace ViewAnalysis.Models.Rules
 {
     internal sealed class RuleModel : BaseModel, IEquatable<RuleModel>
     {
+        public RuleModel()
+        : this(string.Empty)
+        {
+        }
+
+        public RuleModel(string xmlFile)
+        {
+            XmlFile = xmlFile;
+        }
+
         public string TypeName { get; set; }
 
         public string Category { get; set; }
@@ -20,6 +30,8 @@ namespace ViewAnalysis.Models.Rules
         public string Url { get; set; }
 
         public MessageLevelModel MessageLevel { get; set; }
+
+        public string XmlFile { get; }
 
         public bool Equals(RuleModel other)
         {

@@ -10,19 +10,16 @@ using System.Xml;
 using ViewAnalysis.HelperForms;
 using ViewAnalysis.Models;
 using ViewAnalysis.Models.Rules;
-using ViewAnalysis.Models.Targets;
 using ViewAnalysis.Utilities;
 
 namespace ViewAnalysis
 {
     public partial class ViewAnalysis : Form
     {
-        private readonly List<NamespaceModel> NamespaceModelList = new List<NamespaceModel>();
-        private readonly List<TargetModel> TargetModelList = new List<TargetModel>();
-        private readonly List<RuleModel> RuleModelList = new List<RuleModel>();
-        private readonly List<IssueModel> IssueModelList = new List<IssueModel>();
+        private readonly List<RuleModel> ruleModelList = new List<RuleModel>();
+        private readonly List<IssueModel> issueModelList = new List<IssueModel>();
 
-        private int count = 0;
+        private int count;
         private string folderLocation;
         private string solutionPath;
 
@@ -35,30 +32,25 @@ namespace ViewAnalysis
 
         private void TlvAnalysisTree_DoubleClick(object sender, EventArgs e)
         {
-            if (tlvNamespaceAnalysisTree.SelectedObject is IssueModel || tlvNamespaceAnalysisTree.SelectedObject is RuleModel)
-            {
-                ViewAllDataForm form = new ViewAllDataForm(tlvNamespaceAnalysisTree.SelectedObject as BaseModel);
+            //if (tlvNamespaceAnalysisTree.SelectedObject is IssueModel || tlvNamespaceAnalysisTree.SelectedObject is RuleModel)
+            //{
+            //    var form = new ViewAllDataForm((BaseModel) tlvNamespaceAnalysisTree.SelectedObject);
 
-                form.Show();
-            }
+            //    form.Show(this);
+            //}
         }
 
         private void OlvIssues_DoubleClick(object sender, EventArgs e)
         {
             if (olvIssues.SelectedObject is IssueModel || olvIssues.SelectedObject is RuleModel)
             {
-                ViewAllDataForm form = new ViewAllDataForm(olvIssues.SelectedObject as BaseModel);
+                var form = new ViewAllDataForm((BaseModel) olvIssues.SelectedObject);
 
                 form.Show(this);
             }
         }
 
         private void TlvAnalysisTree_CellRightClick(object sender, BrightIdeasSoftware.CellRightClickEventArgs e)
-        {
-            SetupTreeCellRightClickMenu(e);
-        }
-
-        private void TlvTargetsAnalysisTree_CellRightClick(object sender, BrightIdeasSoftware.CellRightClickEventArgs e)
         {
             SetupTreeCellRightClickMenu(e);
         }
@@ -72,9 +64,9 @@ namespace ViewAnalysis
         {
             if (sender is ToolStripMenuItem menuItem && menuItem.Tag != null)
             {
-                ViewAllDataForm form = new ViewAllDataForm(menuItem.Tag as BaseModel);
+                var form = new ViewAllDataForm(menuItem.Tag as BaseModel);
 
-                form.Show();
+                form.Show(this);
             }
         }
 
@@ -89,7 +81,7 @@ namespace ViewAnalysis
             {
                 ShowNewFolderButton = false,
                 RootFolder = Environment.SpecialFolder.MyComputer,
-                Description = "Select the folder where the .sln is. It will search through the folder set for one."
+                Description = @"Select the folder where the .sln is. It will search through the folder set for one."
             };
             var dialogResult = folderDialog.ShowDialog();
 
@@ -110,6 +102,8 @@ namespace ViewAnalysis
                     if (Directory.EnumerateFiles(folderLocation, "code-analysis.xml", SearchOption.AllDirectories).Any())
                     {
                         loadAnalysisResultsToolStripMenuItem.Enabled = true;
+                        clearAnalysisFilesToolStripMenuItem.Enabled =
+                            clearAnalysisFilesToolStripMenuItem.Visible = true;
                     }
                 }
             }
@@ -135,7 +129,7 @@ namespace ViewAnalysis
                     xmlDocument.Load(file);
 
                     GenerateNamespaceTreeList(xmlDocument);
-                    TargetHelper.GenerateTargetTreeList(xmlDocument, TargetModelList, ref count);
+                    GenerateNamespaceTreeListFromTarget(xmlDocument);
                     GenerateRuleTreeList(xmlDocument);
                 }
 
@@ -148,17 +142,15 @@ namespace ViewAnalysis
 
             GetDistinctListofRules();
             SetIssueMssagesRule();
-            LoadNamespacesResultsToTreeView();
             
             LoadIssuesResultsToTreeView();
-
-            tvAnalysis.SetTreeUp(TargetModelList);
-
+            
             SetControlState(false);
 
             var endTime = DateTime.Now;
 
             tbInformation.AppendText($"Time taken to execute: {endTime - startTime} {Environment.NewLine}");
+            tbInformation.AppendText($"Memory: {ConvertBytesToMegabytes(GetMemoryUsed()):N2} MB");
         }
 
         private void GenerateAnalysisToolStripMenuItem_Click(object sender, EventArgs e)
@@ -192,7 +184,7 @@ namespace ViewAnalysis
 
                 if (string.IsNullOrWhiteSpace(msbuildPath))
                 {
-                    MessageBox.Show("No Visual Studio build version found. Can not build project.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("No Visual Studio build version found. Can not build project.", UserMessages.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                     return;
                 }
@@ -238,7 +230,7 @@ namespace ViewAnalysis
         private void WarningToolStripMenuItem_Click(object sender, EventArgs e)
         {
             MessageBox.Show(
-                $"The total number of warnings is {IssueModelList.Count} or {count}",
+                $"The total number of warnings is {issueModelList.Count} or {count}",
                 "Total Number of Warnings",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
@@ -248,14 +240,15 @@ namespace ViewAnalysis
         {
             if (tcAnalysisTabs.SelectedTab.Name == "tpNamespaces")
             {
-                tlvNamespaceAnalysisTree.ExpandAll();
+                //tlvNamespaceAnalysisTree.ExpandAll();
             }
             else if (tcAnalysisTabs.SelectedTab.Name == "tpTargets")
             {
-                tvAnalysis.Expand();
+                //tvAnalysis.Expand();
             }
             else
             {
+                // TODO: FIX
                 foreach (BrightIdeasSoftware.OLVGroup group in olvIssues.Groups)
                 {
                     group.Collapsed = false;
@@ -267,14 +260,15 @@ namespace ViewAnalysis
         {
             if (tcAnalysisTabs.SelectedTab.Name == "tpNamespaces")
             {
-                tlvNamespaceAnalysisTree.CollapseAll();
+                //tlvNamespaceAnalysisTree.CollapseAll();
             }
             else if (tcAnalysisTabs.SelectedTab.Name == "tpTargets")
             {
-                tvAnalysis.Collapse();
+                //tvAnalysis.Collapse();
             }
             else
             {
+                // TODO: Fix
                 foreach (BrightIdeasSoftware.OLVGroup group in olvIssues.Groups)
                 {
                     group.Collapsed = true;
@@ -297,14 +291,14 @@ namespace ViewAnalysis
 
             if (dialogResult != DialogResult.OK)
             {
-                MessageBox.Show("Must set/select save file", "No file selected", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Must set/select save file", UserMessages.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(saveDialog.FileName))
             {
-                MessageBox.Show("Must set/select save file", "No file selected", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Must set/select save file", UserMessages.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                 return;
             }
@@ -313,13 +307,39 @@ namespace ViewAnalysis
 
             if (result.Successful)
             {
-                MessageBox.Show("Export Successful", "Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Export Successful", UserMessages.Successful, MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else
             {
                 tbInformation.AppendText($"ERROR: {result.Exception.Message}");
 
-                MessageBox.Show(result.Exception.Message, "Failed to export", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(result.Exception.Message, UserMessages.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void ClearAnalysisFilesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                tbInformation.AppendText($"Deleting files {Environment.NewLine}");
+
+                loadAnalysisResultsToolStripMenuItem.Enabled = false;
+
+                var files = Directory.EnumerateFiles(folderLocation, "code-analysis.xml", SearchOption.AllDirectories);
+
+                // Turn all of them into xml documents
+                foreach (var file in files)
+                {
+                    File.Delete(file);
+
+                    tbInformation.AppendText($"File '{file}' deleted. {Environment.NewLine}");
+                }
+
+                tbInformation.AppendText($"Files deleted {Environment.NewLine}");
+            }
+            catch (Exception ex)
+            {
+                tbInformation.AppendText($"ERROR: {ex} {Environment.NewLine}");
             }
         }
 
@@ -334,6 +354,12 @@ namespace ViewAnalysis
             tbInformation.AppendText($"Finished build for analysis {Environment.NewLine}");
 
             SetControlState(false);
+
+            tbInformation.AppendText($"Before GC: {ConvertBytesToMegabytes(GetMemoryUsed()):N2} MB");
+
+            GC.Collect();
+
+            tbInformation.AppendText($"After GC: {ConvertBytesToMegabytes(GetMemoryUsed()):N2} MB");
         }
 
         private void Cmd_OutputDataReceived(object sender, DataReceivedEventArgs e)
@@ -348,24 +374,26 @@ namespace ViewAnalysis
         {
             BeginInvoke(new MethodInvoker(() =>
             {
+                File.AppendAllText(@"C:\Temp\Error.log", tbInformation.Text);
+
                 tbInformation.Clear();
 
-                tbInformation.AppendText($"{e.Data ?? string.Empty} {Environment.NewLine}");
+                tbInformation.AppendText($"ERROR: {e.Data ?? string.Empty} {Environment.NewLine}");
+                tbInformation.AppendText($"ERROR: {sender} {Environment.NewLine}");
 
                 SetControlState(false);
+
+                tbInformation.AppendText($"Before GC: {ConvertBytesToMegabytes(GetMemoryUsed()):N2} MB {Environment.NewLine}");
+
+                GC.Collect();
+
+                tbInformation.AppendText($"After GC: {ConvertBytesToMegabytes(GetMemoryUsed()):N2} MB {Environment.NewLine}");
             }));
         }
 
         private void TcAnalysisTabs_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (tcAnalysisTabs.SelectedTab.Name == "tpIssues")
-            {
-                exportListToExcelToolStripMenuItem.Enabled = true;
-            }
-            else
-            {
-                exportListToExcelToolStripMenuItem.Enabled = false;
-            }
+            exportListToExcelToolStripMenuItem.Enabled = tcAnalysisTabs.SelectedTab.Name == "tpIssues";
         }
 
         private void ViewAnalysis_Load(object sender, EventArgs e)
@@ -384,11 +412,16 @@ namespace ViewAnalysis
         private void GenerateNamespaceTreeList(XmlDocument xmlDocument)
         {
             var namespaces = xmlDocument.GetElementsByTagName("Namespace");
-            var list = NamespaceHelper.SetupNamespaceList(namespaces, ref count).ToList();
+            var list = NamespaceHelper.SetupNamespaceList(namespaces, ref count);
 
-            list.ForEach(x => x.XmlFile = xmlDocument.BaseURI);
+            issueModelList.AddRange(list.Select(x => x.Issue));
+        }
 
-            NamespaceModelList.AddRange(list);
+        private void GenerateNamespaceTreeListFromTarget(XmlDocument xmlDocument)
+        {
+            var list = TargetHelper.GenerateTargetTreeList(xmlDocument, ref count);
+
+            issueModelList.AddRange(list.Select(x => x.Issue));
         }
 
         /// <summary>
@@ -401,7 +434,7 @@ namespace ViewAnalysis
 
             foreach (XmlNode rule in rules)
             {
-                var ruleModel = new RuleModel
+                var ruleModel = new RuleModel(xmlDocument.BaseURI)
                 {
                     TypeName = XmlNodeHelper.GetNodeAttributeValue(rule, "TypeName"),
                     Category = XmlNodeHelper.GetNodeAttributeValue(rule, "Category"),
@@ -419,172 +452,35 @@ namespace ViewAnalysis
                     {
                         Certainty = Convert.ToInt32(XmlNodeHelper.GetNodeAttributeValue(rule["MessageLevel"], "Certainty") ?? "0"),
                         Text = rule["MessageLevel"]?.InnerText
-                    },
-                    XmlFile = xmlDocument.BaseURI
+                    }
                 };
 
-                RuleModelList.Add(ruleModel);
+                ruleModelList.Add(ruleModel);
             }
-        }
-
-        /// <summary>
-        /// Take the loaded list of namespace issues and populate/setup the tree
-        /// </summary>
-        private void LoadNamespacesResultsToTreeView()
-        {
-            tlvNamespaceAnalysisTree.SetObjects(NamespaceModelList);
-
-            tlvNamespaceAnalysisTree.CanExpandGetter = delegate (object x)
-            {
-                if (x is NamespaceModel)
-                {
-                    return (x as NamespaceModel).Messages.Any();
-                }
-
-                if (x is MessageModel)
-                {
-                    return (x as MessageModel).Issue != null;
-                }
-
-                return false;
-            };
-
-            tlvNamespaceAnalysisTree.ChildrenGetter = delegate (object x)
-            {
-                if (x is NamespaceModel)
-                {
-                    return (x as NamespaceModel).Messages;
-                }
-
-                if (x is MessageModel)
-                {
-                    var list = new List<IssueModel>(1)
-                    {
-                        (x as MessageModel).Issue
-                    };
-
-                    return list;
-                }
-
-                return null;
-            };
         }
         
         private void LoadIssuesResultsToTreeView()
         {
-            var issueList = new List<IssueModel>();
-
-            NamespaceModelList.ForEach(namespaceModel => namespaceModel.Messages.ForEach(messageModel =>
-            {
-                issueList.Add(messageModel.Issue);
-            }));
-
-            TargetModelList.ForEach(targetModel =>
-            {
-                targetModel.Modules.ForEach(moduleModel =>
-                {
-                    moduleModel.Messages.ForEach(messageModel =>
-                    {
-                        issueList.Add(messageModel.Issue);
-                    });
-
-                    moduleModel.Namespaces.ForEach(namespaceModel =>
-                    {
-                        namespaceModel.Messages.ForEach(messageModel =>
-                        {
-                            issueList.Add(messageModel.Issue);
-                        });
-
-                        namespaceModel.Types.ForEach(typeModel =>
-                        {
-                            typeModel.Messages.ForEach(messageModel =>
-                            {
-                                issueList.Add(messageModel.Issue);
-                            });
-
-                            typeModel.Members.ForEach(memberModel =>
-                            {
-                                memberModel.Messages.ForEach(messageModel =>
-                                {
-                                    issueList.Add(messageModel.Issue);
-                                });
-
-                                memberModel.Accessors.ForEach(accessorModel =>
-                                {
-                                    accessorModel.Messages.ForEach(messageModel =>
-                                    {
-                                        issueList.Add(messageModel.Issue);
-                                    });
-                                });
-                            });
-                        });
-                    });
-                });
-            });
-
-            IssueModelList.AddRange(issueList);
-
-            olvIssues.SetObjects(IssueModelList);
+            olvIssues.SetObjects(issueModelList);
         }
 
         private void GetDistinctListofRules()
         {
-            var distinctRules = RuleModelList.Distinct().ToList();
-            RuleModelList.Clear();
-            RuleModelList.AddRange(distinctRules);
+            var distinctRules = ruleModelList.Distinct().ToList();
+            ruleModelList.Clear();
+            ruleModelList.AddRange(distinctRules);
         }
 
         private void SetIssueMssagesRule()
         {
-            NamespaceModelList.ForEach(namespaceModel => namespaceModel.Messages.ForEach(messageModel =>
+            issueModelList.ForEach(issue =>
             {
-                messageModel.Rule = RuleModelList.Single(ruleModel => ruleModel.CheckId == messageModel.CheckId);
-            }));
-
-            TargetModelList.ForEach(targetModel =>
-            {
-                targetModel.Modules.ForEach(moduleModel =>
-                {
-                    moduleModel.Messages.ForEach(messageModel =>
-                    {
-                        messageModel.Rule = RuleModelList.Single(ruleModel => ruleModel.CheckId == messageModel.CheckId);
-                    });
-
-                    moduleModel.Namespaces.ForEach(namespaceModel =>
-                    {
-                        namespaceModel.Messages.ForEach(messageModel =>
-                        {
-                            messageModel.Rule = RuleModelList.Single(ruleModel => ruleModel.CheckId == messageModel.CheckId);
-                        });
-
-                        namespaceModel.Types.ForEach(typeModel =>
-                        {
-                            typeModel.Messages.ForEach(messageModel =>
-                            {
-                                messageModel.Rule = RuleModelList.Single(ruleModel => ruleModel.CheckId == messageModel.CheckId);
-                            });
-
-                            typeModel.Members.ForEach(memberModel =>
-                            {
-                                memberModel.Messages.ForEach(messageModel =>
-                                {
-                                    messageModel.Rule = RuleModelList.Single(ruleModel => ruleModel.CheckId == messageModel.CheckId);
-                                });
-
-                                memberModel.Accessors.ForEach(accessorModel =>
-                                {
-                                    accessorModel.Messages.ForEach(messageModel =>
-                                    {
-                                        messageModel.Rule = RuleModelList.Single(ruleModel => ruleModel.CheckId == messageModel.CheckId);
-                                    });
-                                });
-                            });
-                        });
-                    });
-                });
+                issue.MessageModel.Rule = ruleModelList.SingleOrDefault(rule => rule.CheckId == issue.MessageModel.CheckId);
             });
-        }
 
+            ruleModelList.Clear();
+        }
+        
         private void SetupTreeCellRightClickMenu(BrightIdeasSoftware.CellRightClickEventArgs e)
         {
             if (e.Model is IssueModel || e.Model is RuleModel)
@@ -606,14 +502,14 @@ namespace ViewAnalysis
             }
         }
 
-        private bool IsVisualStudio2017Installed()
+        private static bool IsVisualStudio2017Installed()
         {
             var registryKey = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\Microsoft\VisualStudio\SxS\VS7");
 
             return registryKey != null;
         }
 
-        private string GetHeighestVersionOfVisualStudio(string version)
+        private static string GetHeighestVersionOfVisualStudio(string version)
         {
             var visualStudioInstalledPath = string.Empty;
             var visualStudioRegistryPath = Registry.LocalMachine.OpenSubKey($@"SOFTWARE\WOW6432Node\Microsoft\VisualStudio\{version}");
@@ -630,7 +526,6 @@ namespace ViewAnalysis
                 visualStudioRegistryPath = Registry.LocalMachine.OpenSubKey($@"SOFTWARE\Microsoft\VisualStudio\{version}");
                 if (visualStudioRegistryPath != null)
                 {
-                    visualStudioInstalledPath = visualStudioRegistryPath.GetValue("InstallDir", string.Empty) as string;
                     msbuildPath = @"C:\Windows\Microsoft.Net\Framework\v4.0.30319\";
                 }
             }
@@ -643,6 +538,30 @@ namespace ViewAnalysis
             return msbuildPath;
         }
 
+        private static double ConvertBytesToMegabytes(long bytes)
+        {
+            return bytes / 1024f / 1024f;
+        }
+
+        private static long GetMemoryUsed()
+        {
+            try
+            {
+                using (var process = Process.GetCurrentProcess())
+                {
+                    return process.WorkingSet64;
+                }
+            }
+            catch
+            {
+                // ignored
+            }
+
+            return 0;
+        }
+
         #endregion Helper Methods
+
+        
     }
 }

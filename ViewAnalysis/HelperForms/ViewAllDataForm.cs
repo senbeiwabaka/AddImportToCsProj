@@ -4,6 +4,7 @@ using System.Text;
 using System.Windows.Forms;
 using ViewAnalysis.Enums;
 using ViewAnalysis.Models;
+using ViewAnalysis.Models.Targets;
 
 namespace ViewAnalysis.HelperForms
 {
@@ -25,38 +26,25 @@ namespace ViewAnalysis.HelperForms
         {
             try
             {
-                if (baseModel is IssueModel)
+                if (baseModel is IssueModel model)
                 {
-                    var model = baseModel as IssueModel;
                     var messageModel = model.MessageModel;
+                    var ruleModel = messageModel.Rule;
                     var stringBuilder = new StringBuilder();
-
-                    var namespaceModel = messageModel.NamespaceModel;
-                    var memberModel = messageModel.MemberModel;
-                    var moduleModel = messageModel.ModuleModel;
-                    var typeModel = messageModel.TypeModel;
-
-                    var projectLocation = string.Empty;
+                    
+                    var projectLocation = ruleModel?.XmlFile ?? string.Empty;
                     var name = string.Empty;
 
-                    if (namespaceModel != null)
+                    if (messageModel.Model is NamespaceModel namespaceModel)
                     {
-                        projectLocation = namespaceModel.XmlFile;
                         name = namespaceModel.Name;
                     }
-                    if (memberModel != null)
+                    if (messageModel.Model is MemberModel memberModel)
                     {
-                        projectLocation = memberModel.TypeModel.NamespaceModel.ModuleModel.TargetModel.XmlFile;
                         name = memberModel.Name;
                     }
-                    if (moduleModel != null)
+                    if (messageModel.Model is TypeModel typeModel)
                     {
-                        projectLocation = moduleModel.XmlFile;
-                        name = moduleModel.Name;
-                    }
-                    if (typeModel != null)
-                    {
-                        projectLocation = typeModel.XmlFile;
                         name = typeModel.Name;
                     }
 
@@ -100,10 +88,8 @@ namespace ViewAnalysis.HelperForms
                     AddNewLine(stringBuilder);
                     AddNewLine(stringBuilder);
 
-                    if (messageModel.Rule != null)
+                    if (ruleModel != null)
                     {
-                        var ruleModel = messageModel.Rule;
-
                         stringBuilder.Append("---- Rule ----");
                         AddNewLine(stringBuilder);
                         AddContent("Name", ruleModel.Name ?? "No Name", stringBuilder);
@@ -128,7 +114,7 @@ namespace ViewAnalysis.HelperForms
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, UserMessages.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -158,7 +144,7 @@ namespace ViewAnalysis.HelperForms
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, UserMessages.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

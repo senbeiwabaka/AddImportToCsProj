@@ -4,8 +4,6 @@ using System.Windows.Forms;
 using ViewAnalysis.HelperForms;
 using ViewAnalysis.Models;
 using ViewAnalysis.Models.Rules;
-using ViewAnalysis.Models.Targets;
-using System.Linq;
 
 namespace ViewAnalysis.Controls
 {
@@ -25,29 +23,9 @@ namespace ViewAnalysis.Controls
 
             tlvTargetsAnalysisTree.CanExpandGetter = delegate (object x)
             {
-                if (x is TargetModel)
+                if (x is MessageModel messageModel)
                 {
-                    return (x as TargetModel).Modules.Any();
-                }
-
-                if (x is ModuleModel)
-                {
-                    return (x as ModuleModel).Messages.Any();
-                }
-
-                if (x is MessageModel)
-                {
-                    return (x as MessageModel).Issue != null;
-                }
-
-                if (x is ModuleModel)
-                {
-                    return (x as ModuleModel).Namespaces.Any();
-                }
-
-                if (x is NamespaceModel)
-                {
-                    return (x as NamespaceModel).Types.Any();
+                    return messageModel.Issue != null;
                 }
 
                 return false;
@@ -55,29 +33,14 @@ namespace ViewAnalysis.Controls
 
             tlvTargetsAnalysisTree.ChildrenGetter = delegate (object x)
             {
-                if (x is TargetModel)
-                {
-                    return (x as TargetModel).Modules;
-                }
-
-                if (x is ModuleModel)
-                {
-                    return (x as ModuleModel).Messages;
-                }
-
-                if (x is MessageModel)
+                if (x is MessageModel messageModel)
                 {
                     var list = new List<IssueModel>(1)
                     {
-                        (x as MessageModel).Issue
+                        messageModel.Issue
                     };
 
                     return list;
-                }
-
-                if (x is ModuleModel)
-                {
-                    return (x as ModuleModel).Namespaces;
                 }
 
                 return null;
@@ -100,9 +63,9 @@ namespace ViewAnalysis.Controls
         {
             if (tlvTargetsAnalysisTree.SelectedObject is IssueModel || tlvTargetsAnalysisTree.SelectedObject is RuleModel)
             {
-                ViewAllDataForm form = new ViewAllDataForm(tlvTargetsAnalysisTree.SelectedObject as BaseModel);
+                var form = new ViewAllDataForm((BaseModel) tlvTargetsAnalysisTree.SelectedObject);
 
-                form.Show();
+                form.Show(this);
             }
         }
 
@@ -115,9 +78,9 @@ namespace ViewAnalysis.Controls
         {
             if (sender is ToolStripMenuItem menuItem && menuItem.Tag != null)
             {
-                ViewAllDataForm form = new ViewAllDataForm(menuItem.Tag as BaseModel);
+                var form = new ViewAllDataForm(menuItem.Tag as BaseModel);
 
-                form.Show();
+                form.Show(this);
             }
         }
 
@@ -125,14 +88,16 @@ namespace ViewAnalysis.Controls
 
         private void SetupTreeCellRightClickMenu(BrightIdeasSoftware.CellRightClickEventArgs e)
         {
-            if (e.Model is IssueModel || e.Model is RuleModel)
+            if (!(e.Model is IssueModel) && !(e.Model is RuleModel))
             {
-                e.MenuStrip = new ContextMenuStrip();
-                e.MenuStrip.Items.Add(new ToolStripMenuItem("View Data", null, TreeMenuItemViewClick)
-                {
-                    Tag = e.Model
-                });
+                return;
             }
+
+            e.MenuStrip = new ContextMenuStrip();
+            e.MenuStrip.Items.Add(new ToolStripMenuItem("View Data", null, TreeMenuItemViewClick)
+            {
+                Tag = e.Model
+            });
         }
     }
 }

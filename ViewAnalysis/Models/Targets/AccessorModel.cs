@@ -1,11 +1,10 @@
-﻿using System.Collections.Generic;
-using ViewAnalysis.Enums;
+﻿using ViewAnalysis.Enums;
 
 namespace ViewAnalysis.Models.Targets
 {
     internal sealed class AccessorModel : BaseModel
     {
-        public AccessorModel() : this(null)
+        public AccessorModel()
         {
         }
 
@@ -22,8 +21,11 @@ namespace ViewAnalysis.Models.Targets
 
         public bool ExternallyVisible { get; set; }
 
-        public List<MessageModel> Messages { get; set; } = new List<MessageModel>();
-
         public MemberModel MemberModel { get; }
+
+        public override string ToString()
+        {
+            return $"{nameof(Name)}: {Name}";
+        }
     }
 }

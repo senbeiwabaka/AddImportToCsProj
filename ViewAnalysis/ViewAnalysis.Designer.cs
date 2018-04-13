@@ -30,13 +30,6 @@ namespace ViewAnalysis
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            this.tlvNamespaceAnalysisTree = new BrightIdeasSoftware.TreeListView();
-            this.olvcName = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
-            this.olvcCertainty = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
-            this.olvcStatus = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
-            this.olvcLevel = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
-            this.olvcRule = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.tbInformation = new System.Windows.Forms.TextBox();
             this.tcAnalysisTabs = new System.Windows.Forms.TabControl();
             this.tpIssues = new System.Windows.Forms.TabPage();
@@ -60,80 +53,12 @@ namespace ViewAnalysis
             this.expandAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.collapseAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exportListToExcelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.tvAnalysis = new TargetsView();
-            ((System.ComponentModel.ISupportInitialize)(this.tlvNamespaceAnalysisTree)).BeginInit();
+            this.clearAnalysisFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tcAnalysisTabs.SuspendLayout();
             this.tpIssues.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.olvIssues)).BeginInit();
-            this.tpNamespaces.SuspendLayout();
-            this.tpTargets.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // tlvNamespaceAnalysisTree
-            // 
-            this.tlvNamespaceAnalysisTree.AllColumns.Add(this.olvcName);
-            this.tlvNamespaceAnalysisTree.AllColumns.Add(this.olvcCertainty);
-            this.tlvNamespaceAnalysisTree.AllColumns.Add(this.olvcStatus);
-            this.tlvNamespaceAnalysisTree.AllColumns.Add(this.olvcLevel);
-            this.tlvNamespaceAnalysisTree.AllColumns.Add(this.olvcRule);
-            this.tlvNamespaceAnalysisTree.CellEditUseWholeCell = false;
-            this.tlvNamespaceAnalysisTree.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.olvcName,
-            this.olvcCertainty,
-            this.olvcStatus,
-            this.olvcLevel,
-            this.olvcRule});
-            this.tlvNamespaceAnalysisTree.Cursor = System.Windows.Forms.Cursors.Default;
-            this.tlvNamespaceAnalysisTree.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tlvNamespaceAnalysisTree.EmptyListMsg = "No Content Found";
-            this.tlvNamespaceAnalysisTree.FullRowSelect = true;
-            this.tlvNamespaceAnalysisTree.Location = new System.Drawing.Point(3, 3);
-            this.tlvNamespaceAnalysisTree.Name = "tlvNamespaceAnalysisTree";
-            this.tlvNamespaceAnalysisTree.ShowGroups = false;
-            this.tlvNamespaceAnalysisTree.Size = new System.Drawing.Size(786, 265);
-            this.tlvNamespaceAnalysisTree.TabIndex = 0;
-            this.tlvNamespaceAnalysisTree.UseCompatibleStateImageBehavior = false;
-            this.tlvNamespaceAnalysisTree.UseFilterIndicator = true;
-            this.tlvNamespaceAnalysisTree.UseFiltering = true;
-            this.tlvNamespaceAnalysisTree.View = System.Windows.Forms.View.Details;
-            this.tlvNamespaceAnalysisTree.VirtualMode = true;
-            this.tlvNamespaceAnalysisTree.CellRightClick += new System.EventHandler<BrightIdeasSoftware.CellRightClickEventArgs>(this.TlvAnalysisTree_CellRightClick);
-            this.tlvNamespaceAnalysisTree.DoubleClick += new System.EventHandler(this.TlvAnalysisTree_DoubleClick);
-            // 
-            // olvcName
-            // 
-            this.olvcName.AspectName = "Name";
-            this.olvcName.FillsFreeSpace = true;
-            this.olvcName.Groupable = false;
-            this.olvcName.IsEditable = false;
-            this.olvcName.Text = "Name";
-            // 
-            // olvcCertainty
-            // 
-            this.olvcCertainty.AspectName = "Certainty";
-            this.olvcCertainty.Groupable = false;
-            this.olvcCertainty.IsEditable = false;
-            this.olvcCertainty.Text = "Certainty";
-            // 
-            // olvcStatus
-            // 
-            this.olvcStatus.AspectName = "Status";
-            this.olvcStatus.Groupable = false;
-            this.olvcStatus.IsEditable = false;
-            this.olvcStatus.Text = "Status";
-            // 
-            // olvcLevel
-            // 
-            this.olvcLevel.AspectName = "Level";
-            this.olvcLevel.Groupable = false;
-            this.olvcLevel.IsEditable = false;
-            this.olvcLevel.Text = "Level";
-            // 
-            // olvcRule
-            // 
-            this.olvcRule.AspectName = "MessageModel.Rule.Name";
-            this.olvcRule.Text = "Rule";
             // 
             // tbInformation
             // 
@@ -262,7 +187,6 @@ namespace ViewAnalysis
             // 
             // tpNamespaces
             // 
-            this.tpNamespaces.Controls.Add(this.tlvNamespaceAnalysisTree);
             this.tpNamespaces.Location = new System.Drawing.Point(4, 25);
             this.tpNamespaces.Name = "tpNamespaces";
             this.tpNamespaces.Padding = new System.Windows.Forms.Padding(3);
@@ -273,7 +197,6 @@ namespace ViewAnalysis
             // 
             // tpTargets
             // 
-            this.tpTargets.Controls.Add(this.tvAnalysis);
             this.tpTargets.Location = new System.Drawing.Point(4, 25);
             this.tpTargets.Name = "tpTargets";
             this.tpTargets.Padding = new System.Windows.Forms.Padding(3);
@@ -300,7 +223,8 @@ namespace ViewAnalysis
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.selectFolderLocationToolStripMenuItem,
             this.generateAnalysisToolStripMenuItem,
-            this.loadAnalysisResultsToolStripMenuItem});
+            this.loadAnalysisResultsToolStripMenuItem,
+            this.clearAnalysisFilesToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(44, 24);
             this.fileToolStripMenuItem.Text = "File";
@@ -339,7 +263,7 @@ namespace ViewAnalysis
             // warningToolStripMenuItem
             // 
             this.warningToolStripMenuItem.Name = "warningToolStripMenuItem";
-            this.warningToolStripMenuItem.Size = new System.Drawing.Size(146, 26);
+            this.warningToolStripMenuItem.Size = new System.Drawing.Size(216, 26);
             this.warningToolStripMenuItem.Text = "Warnings";
             this.warningToolStripMenuItem.Click += new System.EventHandler(this.WarningToolStripMenuItem_Click);
             // 
@@ -356,14 +280,14 @@ namespace ViewAnalysis
             // expandAllToolStripMenuItem
             // 
             this.expandAllToolStripMenuItem.Name = "expandAllToolStripMenuItem";
-            this.expandAllToolStripMenuItem.Size = new System.Drawing.Size(209, 26);
+            this.expandAllToolStripMenuItem.Size = new System.Drawing.Size(216, 26);
             this.expandAllToolStripMenuItem.Text = "Expand All";
             this.expandAllToolStripMenuItem.Click += new System.EventHandler(this.ExpandAllToolStripMenuItem_Click);
             // 
             // collapseAllToolStripMenuItem
             // 
             this.collapseAllToolStripMenuItem.Name = "collapseAllToolStripMenuItem";
-            this.collapseAllToolStripMenuItem.Size = new System.Drawing.Size(209, 26);
+            this.collapseAllToolStripMenuItem.Size = new System.Drawing.Size(216, 26);
             this.collapseAllToolStripMenuItem.Text = "Collapse All";
             this.collapseAllToolStripMenuItem.Click += new System.EventHandler(this.CollapseAllToolStripMenuItem_Click);
             // 
@@ -371,17 +295,18 @@ namespace ViewAnalysis
             // 
             this.exportListToExcelToolStripMenuItem.Enabled = false;
             this.exportListToExcelToolStripMenuItem.Name = "exportListToExcelToolStripMenuItem";
-            this.exportListToExcelToolStripMenuItem.Size = new System.Drawing.Size(209, 26);
+            this.exportListToExcelToolStripMenuItem.Size = new System.Drawing.Size(216, 26);
             this.exportListToExcelToolStripMenuItem.Text = "Export List to Excel";
             this.exportListToExcelToolStripMenuItem.Click += new System.EventHandler(this.ExportListToExcelToolStripMenuItem_Click);
             // 
-            // tvAnalysis
+            // clearAnalysisFilesToolStripMenuItem
             // 
-            this.tvAnalysis.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tvAnalysis.Location = new System.Drawing.Point(3, 3);
-            this.tvAnalysis.Name = "tvAnalysis";
-            this.tvAnalysis.Size = new System.Drawing.Size(786, 265);
-            this.tvAnalysis.TabIndex = 0;
+            this.clearAnalysisFilesToolStripMenuItem.Enabled = false;
+            this.clearAnalysisFilesToolStripMenuItem.Name = "clearAnalysisFilesToolStripMenuItem";
+            this.clearAnalysisFilesToolStripMenuItem.Size = new System.Drawing.Size(231, 26);
+            this.clearAnalysisFilesToolStripMenuItem.Text = "Clear Analysis Files";
+            this.clearAnalysisFilesToolStripMenuItem.Visible = false;
+            this.clearAnalysisFilesToolStripMenuItem.Click += new System.EventHandler(this.ClearAnalysisFilesToolStripMenuItem_Click);
             // 
             // ViewAnalysis
             // 
@@ -396,12 +321,9 @@ namespace ViewAnalysis
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "View Analysis";
             this.Load += new System.EventHandler(this.ViewAnalysis_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.tlvNamespaceAnalysisTree)).EndInit();
             this.tcAnalysisTabs.ResumeLayout(false);
             this.tpIssues.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.olvIssues)).EndInit();
-            this.tpNamespaces.ResumeLayout(false);
-            this.tpTargets.ResumeLayout(false);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
@@ -410,13 +332,7 @@ namespace ViewAnalysis
         }
 
         #endregion
-
-        private BrightIdeasSoftware.TreeListView tlvNamespaceAnalysisTree;
-        private BrightIdeasSoftware.OLVColumn olvcName;
         private System.Windows.Forms.TextBox tbInformation;
-        private BrightIdeasSoftware.OLVColumn olvcCertainty;
-        private BrightIdeasSoftware.OLVColumn olvcStatus;
-        private BrightIdeasSoftware.OLVColumn olvcLevel;
         private System.Windows.Forms.TabControl tcAnalysisTabs;
         private System.Windows.Forms.TabPage tpNamespaces;
         private System.Windows.Forms.TabPage tpTargets;
@@ -427,7 +343,6 @@ namespace ViewAnalysis
         private System.Windows.Forms.ToolStripMenuItem loadAnalysisResultsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem totalsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem warningToolStripMenuItem;
-        private BrightIdeasSoftware.OLVColumn olvcRule;
         private System.Windows.Forms.ToolStripMenuItem utilitiesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem expandAllToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem collapseAllToolStripMenuItem;
@@ -440,7 +355,7 @@ namespace ViewAnalysis
         private System.Windows.Forms.ToolStripMenuItem exportListToExcelToolStripMenuItem;
         private BrightIdeasSoftware.OLVColumn olvcIssueCheckId;
         private BrightIdeasSoftware.OLVColumn olvcIssueUrl;
-        private TargetsView tvAnalysis;
+        private System.Windows.Forms.ToolStripMenuItem clearAnalysisFilesToolStripMenuItem;
     }
 }
 

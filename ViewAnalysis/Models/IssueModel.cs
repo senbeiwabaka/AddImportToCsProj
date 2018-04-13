@@ -5,7 +5,7 @@ namespace ViewAnalysis.Models
 {
     internal sealed class IssueModel : BaseModel
     {
-        public IssueModel() : this(null)
+        public IssueModel()
         {
         }
 
@@ -13,7 +13,7 @@ namespace ViewAnalysis.Models
         {
             MessageModel = messageModel;
         }
-        
+
         public int Certainty { get; set; }
 
         public Levels Level { get; set; }
@@ -26,13 +26,7 @@ namespace ViewAnalysis.Models
 
         public int? Line { get; set; }
 
-        public string FixCategory
-        {
-            get
-            {
-                return MessageModel != null ? Enum.GetName(typeof(FixCategories), MessageModel.FixCategory).ToString() : string.Empty;
-            }
-        }
+        public string FixCategory => MessageModel != null ? Enum.GetName(typeof(FixCategories), MessageModel?.FixCategory) : string.Empty;
 
         public MessageModel MessageModel { get; }
 

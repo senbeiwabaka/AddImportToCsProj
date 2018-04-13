@@ -58,6 +58,8 @@
             this.tlvTargetsAnalysisTree.UseCompatibleStateImageBehavior = false;
             this.tlvTargetsAnalysisTree.View = System.Windows.Forms.View.Details;
             this.tlvTargetsAnalysisTree.VirtualMode = true;
+            this.tlvTargetsAnalysisTree.CellRightClick += new System.EventHandler<BrightIdeasSoftware.CellRightClickEventArgs>(this.TlvAnalysisTree_CellRightClick);
+            this.tlvTargetsAnalysisTree.DoubleClick += new System.EventHandler(this.TlvAnalysisTree_DoubleClick);
             // 
             // olvcName
             // 

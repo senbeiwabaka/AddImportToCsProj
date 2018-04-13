@@ -25,6 +25,7 @@ namespace ViewAnalysis.Utilities
         /// </summary>
         /// <param name="node">The node that has the list of messages</param>
         /// <param name="model">The model the messages are associated with</param>
+        /// <param name="count"></param>
         /// <returns></returns>
         internal static IReadOnlyCollection<MessageModel> BuildListOfMessages(XmlNode node, BaseModel model, ref int count)
         {
