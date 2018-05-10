@@ -47,13 +47,15 @@ namespace ViewAnalysis
             this.selectFolderLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.generateAnalysisToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadAnalysisResultsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.clearAnalysisFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.totalsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.warningToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.utilitiesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.expandAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.collapseAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exportListToExcelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.clearAnalysisFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.clearInformationWindowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.clearLogFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tcAnalysisTabs.SuspendLayout();
             this.tpIssues.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.olvIssues)).BeginInit();
@@ -252,6 +254,15 @@ namespace ViewAnalysis
             this.loadAnalysisResultsToolStripMenuItem.Text = "Load Analysis Results";
             this.loadAnalysisResultsToolStripMenuItem.Click += new System.EventHandler(this.LoadAnalysisResultsToolStripMenuItem_Click);
             // 
+            // clearAnalysisFilesToolStripMenuItem
+            // 
+            this.clearAnalysisFilesToolStripMenuItem.Enabled = false;
+            this.clearAnalysisFilesToolStripMenuItem.Name = "clearAnalysisFilesToolStripMenuItem";
+            this.clearAnalysisFilesToolStripMenuItem.Size = new System.Drawing.Size(231, 26);
+            this.clearAnalysisFilesToolStripMenuItem.Text = "Clear Analysis Files";
+            this.clearAnalysisFilesToolStripMenuItem.Visible = false;
+            this.clearAnalysisFilesToolStripMenuItem.Click += new System.EventHandler(this.ClearAnalysisFilesToolStripMenuItem_Click);
+            // 
             // totalsToolStripMenuItem
             // 
             this.totalsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -263,7 +274,7 @@ namespace ViewAnalysis
             // warningToolStripMenuItem
             // 
             this.warningToolStripMenuItem.Name = "warningToolStripMenuItem";
-            this.warningToolStripMenuItem.Size = new System.Drawing.Size(216, 26);
+            this.warningToolStripMenuItem.Size = new System.Drawing.Size(146, 26);
             this.warningToolStripMenuItem.Text = "Warnings";
             this.warningToolStripMenuItem.Click += new System.EventHandler(this.WarningToolStripMenuItem_Click);
             // 
@@ -272,7 +283,9 @@ namespace ViewAnalysis
             this.utilitiesToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.expandAllToolStripMenuItem,
             this.collapseAllToolStripMenuItem,
-            this.exportListToExcelToolStripMenuItem});
+            this.exportListToExcelToolStripMenuItem,
+            this.clearInformationWindowToolStripMenuItem,
+            this.clearLogFileToolStripMenuItem});
             this.utilitiesToolStripMenuItem.Name = "utilitiesToolStripMenuItem";
             this.utilitiesToolStripMenuItem.Size = new System.Drawing.Size(71, 24);
             this.utilitiesToolStripMenuItem.Text = "Utilities";
@@ -280,14 +293,14 @@ namespace ViewAnalysis
             // expandAllToolStripMenuItem
             // 
             this.expandAllToolStripMenuItem.Name = "expandAllToolStripMenuItem";
-            this.expandAllToolStripMenuItem.Size = new System.Drawing.Size(216, 26);
+            this.expandAllToolStripMenuItem.Size = new System.Drawing.Size(259, 26);
             this.expandAllToolStripMenuItem.Text = "Expand All";
             this.expandAllToolStripMenuItem.Click += new System.EventHandler(this.ExpandAllToolStripMenuItem_Click);
             // 
             // collapseAllToolStripMenuItem
             // 
             this.collapseAllToolStripMenuItem.Name = "collapseAllToolStripMenuItem";
-            this.collapseAllToolStripMenuItem.Size = new System.Drawing.Size(216, 26);
+            this.collapseAllToolStripMenuItem.Size = new System.Drawing.Size(259, 26);
             this.collapseAllToolStripMenuItem.Text = "Collapse All";
             this.collapseAllToolStripMenuItem.Click += new System.EventHandler(this.CollapseAllToolStripMenuItem_Click);
             // 
@@ -295,18 +308,23 @@ namespace ViewAnalysis
             // 
             this.exportListToExcelToolStripMenuItem.Enabled = false;
             this.exportListToExcelToolStripMenuItem.Name = "exportListToExcelToolStripMenuItem";
-            this.exportListToExcelToolStripMenuItem.Size = new System.Drawing.Size(216, 26);
+            this.exportListToExcelToolStripMenuItem.Size = new System.Drawing.Size(259, 26);
             this.exportListToExcelToolStripMenuItem.Text = "Export List to Excel";
             this.exportListToExcelToolStripMenuItem.Click += new System.EventHandler(this.ExportListToExcelToolStripMenuItem_Click);
             // 
-            // clearAnalysisFilesToolStripMenuItem
+            // clearInformationWindowToolStripMenuItem
             // 
-            this.clearAnalysisFilesToolStripMenuItem.Enabled = false;
-            this.clearAnalysisFilesToolStripMenuItem.Name = "clearAnalysisFilesToolStripMenuItem";
-            this.clearAnalysisFilesToolStripMenuItem.Size = new System.Drawing.Size(231, 26);
-            this.clearAnalysisFilesToolStripMenuItem.Text = "Clear Analysis Files";
-            this.clearAnalysisFilesToolStripMenuItem.Visible = false;
-            this.clearAnalysisFilesToolStripMenuItem.Click += new System.EventHandler(this.ClearAnalysisFilesToolStripMenuItem_Click);
+            this.clearInformationWindowToolStripMenuItem.Name = "clearInformationWindowToolStripMenuItem";
+            this.clearInformationWindowToolStripMenuItem.Size = new System.Drawing.Size(259, 26);
+            this.clearInformationWindowToolStripMenuItem.Text = "Clear Information Window";
+            this.clearInformationWindowToolStripMenuItem.Click += new System.EventHandler(this.ClearInformationWindowToolStripMenuItem_Click);
+            // 
+            // clearLogFileToolStripMenuItem
+            // 
+            this.clearLogFileToolStripMenuItem.Name = "clearLogFileToolStripMenuItem";
+            this.clearLogFileToolStripMenuItem.Size = new System.Drawing.Size(259, 26);
+            this.clearLogFileToolStripMenuItem.Text = "Clear Log File";
+            this.clearLogFileToolStripMenuItem.Click += new System.EventHandler(this.ClearLogFileToolStripMenuItem_Click);
             // 
             // ViewAnalysis
             // 
@@ -356,6 +374,8 @@ namespace ViewAnalysis
         private BrightIdeasSoftware.OLVColumn olvcIssueCheckId;
         private BrightIdeasSoftware.OLVColumn olvcIssueUrl;
         private System.Windows.Forms.ToolStripMenuItem clearAnalysisFilesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem clearInformationWindowToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem clearLogFileToolStripMenuItem;
     }
 }
 

@@ -16,8 +16,11 @@ namespace ViewAnalysis
 {
     public partial class ViewAnalysis : Form
     {
+        private const string ErrorFileLocation = @"C:\Temp\Error.log";
+
         private readonly List<RuleModel> ruleModelList = new List<RuleModel>();
         private readonly List<IssueModel> issueModelList = new List<IssueModel>();
+        private readonly Process analysisProcess = new Process();
 
         private int count;
         private string folderLocation;
@@ -44,7 +47,7 @@ namespace ViewAnalysis
         {
             if (olvIssues.SelectedObject is IssueModel || olvIssues.SelectedObject is RuleModel)
             {
-                var form = new ViewAllDataForm((BaseModel) olvIssues.SelectedObject);
+                var form = new ViewAllDataForm((BaseModel)olvIssues.SelectedObject);
 
                 form.Show(this);
             }
@@ -142,9 +145,9 @@ namespace ViewAnalysis
 
             GetDistinctListofRules();
             SetIssueMssagesRule();
-            
+
             LoadIssuesResultsToTreeView();
-            
+
             SetControlState(false);
 
             var endTime = DateTime.Now;
@@ -169,7 +172,7 @@ namespace ViewAnalysis
                 }
                 else
                 {
-                    var visualStudioVersion = new[] { "14.0", "12.0" };
+                    var visualStudioVersion = new[] {"14.0", "12.0"};
 
                     foreach (var version in visualStudioVersion)
                     {
@@ -184,38 +187,38 @@ namespace ViewAnalysis
 
                 if (string.IsNullOrWhiteSpace(msbuildPath))
                 {
-                    MessageBox.Show("No Visual Studio build version found. Can not build project.", UserMessages.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("No Visual Studio build version found. Can not build project.", UserMessages.Error,
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                     return;
                 }
 
                 var runBatContents = File.ReadAllText($"{AppDomain.CurrentDomain.BaseDirectory}run.bat");
 
-                runBatContents = runBatContents.Replace("{cdlocation}", $"\"{msbuildPath.Replace("\\", @"\").Trim()}\"");
-                runBatContents = runBatContents.Replace("{solutionpath}", $"\"{solutionPath.Replace("\\", @"\").Trim()}\"");
+                runBatContents =
+                    runBatContents.Replace("{cdlocation}", $"\"{msbuildPath.Replace("\\", @"\").Trim()}\"");
+                runBatContents =
+                    runBatContents.Replace("{solutionpath}", $"\"{solutionPath.Replace("\\", @"\").Trim()}\"");
 
                 File.WriteAllText($"{AppDomain.CurrentDomain.BaseDirectory}run.bat", runBatContents);
 
-                using (var cmd = new Process())
-                {
-                    cmd.StartInfo.FileName = $"{AppDomain.CurrentDomain.BaseDirectory}run.bat";
-                    cmd.StartInfo.WindowStyle = ProcessWindowStyle.Maximized;
-                    cmd.StartInfo.RedirectStandardInput = true;
-                    cmd.StartInfo.RedirectStandardOutput = true;
-                    cmd.StartInfo.RedirectStandardError = true;
-                    cmd.EnableRaisingEvents = true;
-                    cmd.StartInfo.CreateNoWindow = true;
-                    cmd.StartInfo.UseShellExecute = false;
-                    cmd.ErrorDataReceived += Cmd_ErrorDataReceived;
-                    cmd.OutputDataReceived += Cmd_OutputDataReceived;
-                    cmd.Exited += Cmd_Exited;
-                    cmd.SynchronizingObject = this;
+                analysisProcess.StartInfo.FileName = $"{AppDomain.CurrentDomain.BaseDirectory}run.bat";
+                analysisProcess.StartInfo.RedirectStandardInput = true;
+                analysisProcess.StartInfo.RedirectStandardOutput = true;
+                analysisProcess.StartInfo.RedirectStandardError = true;
+                analysisProcess.EnableRaisingEvents = true;
+                analysisProcess.StartInfo.CreateNoWindow = true;
+                analysisProcess.StartInfo.UseShellExecute = false;
+                analysisProcess.ErrorDataReceived += Cmd_ErrorDataReceived;
+                analysisProcess.OutputDataReceived += Cmd_OutputDataReceived;
+                analysisProcess.Exited += Cmd_Exited;
+                analysisProcess.SynchronizingObject = this;
 
-                    cmd.Start();
+                analysisProcess.Start();
 
-                    cmd.BeginOutputReadLine();
-                    cmd.BeginErrorReadLine();
-                }
+                analysisProcess.BeginOutputReadLine();
+                analysisProcess.BeginErrorReadLine();
+
             }
             catch (Exception ex)
             {
@@ -336,10 +339,30 @@ namespace ViewAnalysis
                 }
 
                 tbInformation.AppendText($"Files deleted {Environment.NewLine}");
+
+                clearAnalysisFilesToolStripMenuItem.Enabled = false;
+                clearAnalysisFilesToolStripMenuItem.Visible = false;
             }
             catch (Exception ex)
             {
                 tbInformation.AppendText($"ERROR: {ex} {Environment.NewLine}");
+            }
+        }
+
+        private void ClearInformationWindowToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            tbInformation.Clear();
+        }
+
+        private void ClearLogFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                File.Delete(ErrorFileLocation);
+            }
+            catch (Exception exception)
+            {
+                tbInformation.AppendText($"ERROR: {exception} {Environment.NewLine}");
             }
         }
 
@@ -374,12 +397,33 @@ namespace ViewAnalysis
         {
             BeginInvoke(new MethodInvoker(() =>
             {
-                File.AppendAllText(@"C:\Temp\Error.log", tbInformation.Text);
+                File.AppendAllText(ErrorFileLocation, tbInformation.Text);
 
                 tbInformation.Clear();
 
                 tbInformation.AppendText($"ERROR: {e.Data ?? string.Empty} {Environment.NewLine}");
                 tbInformation.AppendText($"ERROR: {sender} {Environment.NewLine}");
+
+                try
+                {
+                    if (sender is Process process)
+                    {
+                        tbInformation.AppendText($"ERROR Exit Code: {process.ExitCode} {Environment.NewLine}");
+                    }
+                }
+                catch (Exception exception)
+                {
+                    tbInformation.AppendText($"ERROR: {exception} {Environment.NewLine}");
+                }
+
+                try
+                {
+                    tbInformation.AppendText($"ERROR Exit Code: {analysisProcess.ExitCode} {Environment.NewLine}");
+                }
+                catch (Exception exception)
+                {
+                    tbInformation.AppendText($"ERROR: {exception} {Environment.NewLine}");
+                }
 
                 SetControlState(false);
 
@@ -458,7 +502,7 @@ namespace ViewAnalysis
                 ruleModelList.Add(ruleModel);
             }
         }
-        
+
         private void LoadIssuesResultsToTreeView()
         {
             olvIssues.SetObjects(issueModelList);
@@ -480,7 +524,7 @@ namespace ViewAnalysis
 
             ruleModelList.Clear();
         }
-        
+
         private void SetupTreeCellRightClickMenu(BrightIdeasSoftware.CellRightClickEventArgs e)
         {
             if (e.Model is IssueModel || e.Model is RuleModel)
@@ -559,6 +603,7 @@ namespace ViewAnalysis
 
             return 0;
         }
+
 
         #endregion Helper Methods
 
