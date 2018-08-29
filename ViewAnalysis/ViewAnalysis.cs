@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -17,6 +18,8 @@ namespace ViewAnalysis
     public partial class ViewAnalysis : Form
     {
         private const string ErrorFileLocation = @"C:\Temp\Error.log";
+
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         private readonly List<RuleModel> ruleModelList = new List<RuleModel>();
         private readonly List<IssueModel> issueModelList = new List<IssueModel>();
@@ -80,7 +83,7 @@ namespace ViewAnalysis
         // TODO: Convert to helper form that can specify special folder structure
         private void SelectFolderLocationToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var folderDialog = new FolderBrowserDialog()
+            var folderDialog = new FolderBrowserDialog
             {
                 ShowNewFolderButton = false,
                 RootFolder = Environment.SpecialFolder.MyComputer,
@@ -161,6 +164,7 @@ namespace ViewAnalysis
             try
             {
                 tbInformation.AppendText("Starting build for analysis");
+                Logger.Info("Starting build for analysis");
 
                 SetControlState(true);
 
@@ -172,7 +176,7 @@ namespace ViewAnalysis
                 }
                 else
                 {
-                    var visualStudioVersion = new[] {"14.0", "12.0"};
+                    var visualStudioVersion = new[] { "14.0", "12.0" };
 
                     foreach (var version in visualStudioVersion)
                     {
@@ -218,13 +222,12 @@ namespace ViewAnalysis
 
                 analysisProcess.BeginOutputReadLine();
                 analysisProcess.BeginErrorReadLine();
-
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                Logger.Error(ex, $"Method: {nameof(GenerateAnalysisToolStripMenuItem_Click)}");
 
-                tbInformation.AppendText($"ERROR: {ex} {Environment.NewLine}");
+                tbInformation.AppendText($"ERROR: {ex.Message} {Environment.NewLine}");
 
                 SetControlState(false);
             }
@@ -239,6 +242,7 @@ namespace ViewAnalysis
                 MessageBoxIcon.Information);
         }
 
+        // TODO: FIX
         private void ExpandAllToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (tcAnalysisTabs.SelectedTab.Name == "tpNamespaces")
@@ -372,17 +376,27 @@ namespace ViewAnalysis
 
         private void Cmd_Exited(object sender, EventArgs e)
         {
-            tbInformation.Clear();
+            try
+            {
+                tbInformation.Clear();
 
-            tbInformation.AppendText($"Finished build for analysis {Environment.NewLine}");
+                tbInformation.AppendText($"Finished build for analysis {Environment.NewLine}");
+                Logger.Info("Finished build for analysis");
 
-            SetControlState(false);
+                SetControlState(false);
 
-            tbInformation.AppendText($"Before GC: {ConvertBytesToMegabytes(GetMemoryUsed()):N2} MB");
+                tbInformation.AppendText(
+                    $"Before GC: {ConvertBytesToMegabytes(GetMemoryUsed()):N2} MB {Environment.NewLine}");
 
-            GC.Collect();
+                GC.Collect();
 
-            tbInformation.AppendText($"After GC: {ConvertBytesToMegabytes(GetMemoryUsed()):N2} MB");
+                tbInformation.AppendText(
+                    $"After GC: {ConvertBytesToMegabytes(GetMemoryUsed()):N2} MB {Environment.NewLine}");
+            }
+            catch (Exception exception)
+            {
+                Logger.Error(exception, $"ERROR: {exception}");
+            }
         }
 
         private void Cmd_OutputDataReceived(object sender, DataReceivedEventArgs e)
@@ -390,6 +404,7 @@ namespace ViewAnalysis
             BeginInvoke(new MethodInvoker(() =>
             {
                 tbInformation.AppendText($"{e.Data ?? string.Empty} {Environment.NewLine}");
+                Logger.Debug(e.Data ?? string.Empty);
             }));
         }
 
@@ -397,10 +412,10 @@ namespace ViewAnalysis
         {
             BeginInvoke(new MethodInvoker(() =>
             {
-                File.AppendAllText(ErrorFileLocation, tbInformation.Text);
-
                 tbInformation.Clear();
 
+                Logger.Error($"ERROR: {e.Data ?? string.Empty}");
+                Logger.Error($"ERROR: {sender}");
                 tbInformation.AppendText($"ERROR: {e.Data ?? string.Empty} {Environment.NewLine}");
                 tbInformation.AppendText($"ERROR: {sender} {Environment.NewLine}");
 
@@ -409,20 +424,24 @@ namespace ViewAnalysis
                     if (sender is Process process)
                     {
                         tbInformation.AppendText($"ERROR Exit Code: {process.ExitCode} {Environment.NewLine}");
+                        Logger.Error($"ERROR Exit Code: {process.ExitCode}");
                     }
                 }
                 catch (Exception exception)
                 {
                     tbInformation.AppendText($"ERROR: {exception} {Environment.NewLine}");
+                    Logger.Error(exception, $"ERROR: {exception}");
                 }
 
                 try
                 {
+                    Logger.Error($"ERROR Exit Code: {analysisProcess.ExitCode}");
                     tbInformation.AppendText($"ERROR Exit Code: {analysisProcess.ExitCode} {Environment.NewLine}");
                 }
                 catch (Exception exception)
                 {
                     tbInformation.AppendText($"ERROR: {exception} {Environment.NewLine}");
+                    Logger.Error(exception, $"ERROR: {exception}");
                 }
 
                 SetControlState(false);
@@ -604,9 +623,6 @@ namespace ViewAnalysis
             return 0;
         }
 
-
         #endregion Helper Methods
-
-        
     }
 }
